@@ -6,8 +6,7 @@ __copyright__="Copyright (c) 2010-2013 European XFEL GmbH Hamburg. All rights re
 
 import numpy
 import scipy
-import scipy.ndimage
-import scipy.stats
+import scipy.optimize
 
 
 def imageSetThreshold(image, threshold):
@@ -15,7 +14,8 @@ def imageSetThreshold(image, threshold):
     if type(image)!=numpy.ndarray:
         return None
     
-    return scipy.stats.threshold(image, threshold, None, 0)
+    # much faster than scipy.stats.threshold()
+    return image*(image>threshold)
 
 
 def imageXProjection(image):
@@ -134,14 +134,14 @@ def fitGauss2DRot(image, p0=None):
 def gauss1D(height, x0, sx):
     """Returns a gaussian function with the given parameters"""
     sx = float(sx)
-    return lambda x: height*scipy.exp(-(((x-x0)/sx)**2)/2)
+    return lambda x: height*numpy.exp(-(((x-x0)/sx)**2)/2)
 
 
 def gauss2D(height, x0, y0, sx, sy):
     """Returns a gaussian function with the given parameters"""
     sx = float(sx)
     sy = float(sy)
-    return lambda x,y: height*scipy.exp(-(((x-x0)/sx)**2+((y-y0)/sy)**2)/2)
+    return lambda x,y: height*numpy.exp(-(((x-x0)/sx)**2+((y-y0)/sy)**2)/2)
 
 
 def gauss2DRot(height, x0, y0, sx, sy, theta):
