@@ -9,6 +9,14 @@ import scipy
 import scipy.optimize
 
 
+def imagePixelValueFrequencies(image):
+    """Returns the distribution of the pixel value freqiencies"""
+    if type(image)!=numpy.ndarray:
+        return None
+    
+    return numpy.bincount(image.reshape(image.size))
+
+
 def imageSetThreshold(image, threshold):
     """Sets a threshold on an image"""
     if type(image)!=numpy.ndarray:
