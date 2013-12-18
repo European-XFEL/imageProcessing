@@ -42,34 +42,40 @@ def imageCentreOfMass(image):
     if image.ndim==1:
         # 1-D image
         
-        # Centre-of-mass
-        (x0, ) = scipy.ndimage.measurements.center_of_mass(image)
+        values = numpy.arange(image.shape[0])
+        widths = image
         
-        # width
-        w  = image
-        d  = (numpy.arange(image.shape[0]) - x0)**2
-        v  = numpy.dot(w, d)
-        sx = numpy.sqrt(v/w.sum())
+        # Centre-of-mass and width
+        x0 = numpy.average(values, weights=weights)
+        sx = numpy.average((values-x0)**2, weights=weights)
+        sx = numpy.sqrt(sx)
         
         return (x0, sx)
-
+    
     elif image.ndim==2:
         # 2-D image
 
-        # Centre-of-mass
-        (y0, x0) = scipy.ndimage.measurements.center_of_mass(image)
+        # projection onto x-axis
+        imgX = image.sum(axis=0)
+
+        values = numpy.arange(imgX.shape[0])
+        weights = imgX
         
-        # x width
-        w  = image.sum(axis=0)
-        d  = (numpy.arange(image.shape[0]) - x0)**2
-        v  = numpy.dot(w, d)
-        sx = numpy.sqrt(v/w.sum())
+        # Centre-of-mass and width (x)
+        x0 = numpy.average(values, weights=weights)
+        sx = numpy.average((values-x0)**2, weights=weights)
+        sx = numpy.sqrt(sx)
         
-        # y width
-        w  = image.sum(axis=1)
-        d  = (numpy.arange(image.shape[1]) - y0)**2
-        v  = numpy.dot(w, d)
-        sy = numpy.sqrt(v/w.sum())
+        # projection onto y-axis
+        imgY = image.sum(axis=1)
+        
+        values = numpy.arange(imgY.shape[0])
+        weights = imgY
+        
+        # Centre-of-mass and width (y)
+        y0 = numpy.average(values, weights=weights)
+        sy = numpy.average((values-y0)**2, weights=weights)
+        sy = numpy.sqrt(sy)
         
         return (x0, y0, sx, sy)
     
