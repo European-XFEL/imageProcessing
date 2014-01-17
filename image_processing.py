@@ -51,7 +51,7 @@ def imageCentreOfMass(image):
         # 1-D image
         
         values = numpy.arange(image.shape[0])
-        widths = image
+        weights = image
         
         # Centre-of-mass and width
         x0 = numpy.average(values, weights=weights)
