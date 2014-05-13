@@ -8,6 +8,60 @@ import numpy
 import scipy
 import scipy.optimize
 
+import karabo.karathon
+
+def rawImageDataToNdarray(rawImageData):
+
+    if type(rawImageData)!=karabo.karathon.RawImageData:
+        raise TypeError("Image format is not RawImageData")
+
+    encoding = rawImageData.getEncoding()
+    if encoding!=karabo.karathon.EncodingType.GRAY:
+        raise ValueError("Image encoding is not GRAY")
+
+    isBigEndian = rawImageData.isBigEndian()
+    if isBigEndian==True:
+        raise ValueError("Image is not Small Endian")
+
+    channelSpace = rawImageData.getChannelSpace()
+    if channelSpace==karabo.karathon.ChannelSpaceType.u_8_1:
+        pixelType = 'uint8'
+    elif channelSpace==karabo.karathon.ChannelSpaceType.s_8_1:
+        pixelType = 'int8'
+    elif channelSpace==karabo.karathon.ChannelSpaceType.u_16_2:
+        pixelType = 'uint16'
+    elif channelSpace==karabo.karathon.ChannelSpaceType.s_16_2:
+        pixelType = 'int16'
+    elif channelSpace==karabo.karathon.ChannelSpaceType.u_32_4:
+        pixelType = 'uint32'
+    elif channelSpace==karabo.karathon.ChannelSpaceType.s_32_4:
+        pixelType = 'int32'
+    elif channelSpace==karabo.karathon.ChannelSpaceType.u_64_8:
+        pixelType = 'uint64'
+    elif channelSpace==karabo.karathon.ChannelSpaceType.s_64_8:
+        pixelType = 'int64'
+    elif channelSpace==karabo.karathon.ChannelSpaceType.f_32_4:
+        pixelType = 'float32'
+    elif channelSpace==karabo.karathon.ChannelSpaceType.f_64_8:
+        pixelType = 'float64'
+    else:
+        raise ValueError("Image has unknown pixel type")
+
+    data = rawImageData.getData()
+    dims = rawImageData.getDimensions()
+
+    if len(dims)==2:
+        # 2-d image
+        pass
+    elif len(dims)==3 and dims[2]==1L:
+        # also 2-d image
+        dims = dims[0:2]
+    else:
+        raise ValueError("Image is not 2-d")
+
+    imgArray = numpy.ndarray(shape=(dims[1], dims[0]), dtype=pixelType, buffer=data)
+
+    return imgArray
 
 def imagePixelValueFrequencies(image):
     """Returns the distribution of the pixel value freqiencies"""
