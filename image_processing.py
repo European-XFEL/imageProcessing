@@ -53,7 +53,7 @@ def rawImageDataToNdarray(rawImageData):
     if len(dims)==2:
         # 2-d image
         pass
-    elif len(dims)==3 and dims[2]==1L:
+    elif len(dims)==3 and dims[2]==1:
         # also 2-d image
         dims = dims[0:2]
     else:
