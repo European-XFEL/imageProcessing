@@ -83,7 +83,7 @@ def imageSetThreshold(image, threshold):
 def imageXProjection(image):
     """Returns the projection of a 2-D image onto the x-axis"""
     if type(image)!=numpy.ndarray or image.ndim!=2:
-        None
+        return None
     
     return image.sum(axis=0)
 
