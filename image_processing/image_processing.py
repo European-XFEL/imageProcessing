@@ -8,6 +8,7 @@ import math
 import numpy
 import scipy
 import scipy.optimize
+import scipy.stats
 
 
 def imagePixelValueFrequencies(image):
@@ -19,12 +20,21 @@ def imagePixelValueFrequencies(image):
 
 
 def imageSetThreshold(image, threshold):
-    """Sets a threshold on an image"""
+    """Sets to 0 image elements below threshold"""
     if not isinstance(image, numpy.ndarray):
         return None
-    
-    # much faster than scipy.stats.threshold()
-    return image*(image>threshold)
+
+    # return scipy.stats.threshold(image, threshold)
+
+    # #  A bit faster than scipy.stats.threshold
+    # m = numpy.array(image)
+    # m[m<threshold] = 0
+    # return m
+
+    # A bit faster than m[m<threshold] = 0
+    m = numpy.array(image)
+    m *= m>threshold
+    return m
 
 
 def imageSumAlongY(image):
@@ -33,6 +43,7 @@ def imageSumAlongY(image):
         return None
     
     return image.sum(axis=0)
+
 
 def imageSumAlongX(image):
     """Sums image along X axis"""
@@ -50,7 +61,7 @@ def imageCentreOfMass(image):
     if image.ndim==1:
         # 1-D image
         
-        values = numpy.arange(image.shape[0])
+        values = numpy.arange(image.size)
         weights = image
         
         # Centre-of-mass and width
@@ -63,27 +74,13 @@ def imageCentreOfMass(image):
     elif image.ndim==2:
         # 2-D image
 
-        # sum over y
+        # sum over y, evaluate centre-of-mass and width
         imgX = image.sum(axis=0)
-
-        values = numpy.arange(imgX.shape[0])
-        weights = imgX
+        (x0, sx) = imageCentreOfMass(imgX)
         
-        # Centre-of-mass and width (x)
-        x0 = numpy.average(values, weights=weights)
-        sx = numpy.average((values-x0)**2, weights=weights)
-        sx = numpy.sqrt(sx)
-        
-        # sum over x
+        # sum over x, evaluate centre-of-mass and width
         imgY = image.sum(axis=1)
-        
-        values = numpy.arange(imgY.shape[0])
-        weights = imgY
-        
-        # Centre-of-mass and width (y)
-        y0 = numpy.average(values, weights=weights)
-        sy = numpy.average((values-y0)**2, weights=weights)
-        sy = numpy.sqrt(sy)
+        (y0, sy) = imageCentreOfMass(imgY)
         
         return (x0, y0, sx, sy)
     
