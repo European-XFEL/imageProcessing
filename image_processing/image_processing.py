@@ -215,9 +215,13 @@ def gauss2dRot(x, y, height, x0, y0, sx, sy, theta_deg, a=0., b=0., c=0., enable
     The polynomial is in the form a*x + b*y +c."""
     #
     theta = math.radians(theta_deg)  # rad -> deg
-    x1 = x*math.cos(theta) + y*math.sin(theta)  # Change reference frame -> x'
-    y1 = x*math.sin(-theta) + y*math.cos(theta)  # Change reference frame -> y'
+    # Reference frame change: First translate orign to (x0, y0)...
+    x1 = x - x0
+    y1 = y - y0
+    # ... then rotate axes
+    x2 = x1*math.cos(theta) - y1*math.sin(theta)
+    y2 = x1*math.sin(theta) + y1*math.cos(theta)
     #
-    f = gauss2d(x1, y1, height, x0, y0, sx, sy, a, b, c, enablePolynomial)
+    f = gauss2d(x2, y2, height, 0., 0., sx, sy, a, b, c, enablePolynomial)
     #
     return f
