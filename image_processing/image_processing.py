@@ -107,7 +107,7 @@ def fitGauss(image, p0=None, enablePolynomial=False):
 
         # [AP] scipy.optimize.leastsq assumes equal errors
         x = numpy.arange(image.size)
-        errFun = lambda p: _gauss1d(x, *p, enablePolynomial=enablePolynomial) - image
+        errFun = lambda p: gauss1d(x, *p, enablePolynomial=enablePolynomial) - image
         out = scipy.optimize.leastsq(errFun, p0, full_output=1)
 
         s_sq = (out[2]['fvec']**2).sum()/(len(out[2]['fvec'])-len(out[0])) # residual variance
@@ -131,7 +131,7 @@ def fitGauss(image, p0=None, enablePolynomial=False):
         # [AP] scipy.optimize.leastsq assumes equal errors
         x = numpy.arange(image.shape[1]).reshape(1, image.shape[1])
         y = numpy.arange(image.shape[0]).reshape(image.shape[0], 1)
-        errFun = lambda p: numpy.ravel(_gauss2d(x, y, *p, enablePolynomial=enablePolynomial) - image)
+        errFun = lambda p: numpy.ravel(gauss2d(x, y, *p, enablePolynomial=enablePolynomial) - image)
         out = scipy.optimize.leastsq(errFun, p0, full_output=1)
 
         s_sq = (out[2]['fvec']**2).sum()/(len(out[2]['fvec'])-len(out[0])) # residual variance
@@ -162,7 +162,7 @@ def fitGauss2DRot(image, p0=None, enablePolynomial=False):
     # [AP] scipy.optimize.leastsq assumes equal errors
     x = numpy.arange(image.shape[1]).reshape(1, image.shape[1])
     y = numpy.arange(image.shape[0]).reshape(image.shape[0], 1)
-    errFun = lambda p: numpy.ravel(_gauss2dRot(x, y, *p, enablePolynomial=enablePolynomial) - image)
+    errFun = lambda p: numpy.ravel(gauss2dRot(x, y, *p, enablePolynomial=enablePolynomial) - image)
     out = scipy.optimize.leastsq(errFun, p0, full_output=1)
 
     s_sq = (out[2]['fvec']**2).sum()/(len(out[2]['fvec'])-len(out[0])) # residual variance
@@ -173,86 +173,51 @@ def fitGauss2DRot(image, p0=None, enablePolynomial=False):
     return p1, p1cov, ier
 
 
-def _gauss1d(x, height, x0, sx, a=0., b=0., enablePolynomial=False):
+def gauss1d(x, height, x0, sx, a=0., b=0., enablePolynomial=False):
     """Returns a gaussian + 1st order polynomial, with the given parameters.
+    The gaussian is in the form height*numpy.exp(-(((x-x0)/sx)**2)/2).
     The polynomial is in the form a*x + b."""
-    x0 = float(x0)  # Will force f to be float, even if x is int.
-    f = x - x0
-    # All the following are in-place operations -> no additional ndarrays created.
-    f /= sx
-    f **= 2
-    f /= -2
-    f = numpy.exp(f)
-    f *= height  # like doing f = height*numpy.exp(-(((x-x0)/sx)**2)/2), but slightly faster.
+    #
+    f = height * numpy.exp(-0.5 * ((x-float(x0))/sx)**2)
     #
     if enablePolynomial is True:
         # Add polynomial
         if a!=0.:
-            f += a*x
+            f += a*x  # In-place
         if b!=0:
-            f += b
+            f += b  # In-place
     #
     return f
 
 
-def _gauss2d(x, y, height, x0, y0, sx, sy, a=0., b=0., c=0., enablePolynomial=False):
+def gauss2d(x, y, height, x0, y0, sx, sy, a=0., b=0., c=0., enablePolynomial=False):
     """2-d gaussian + 1st order polynomial, with the given parameters.
+    The gaussian is in the form height*numpy.exp(-(((x-x0)/sx)**2+((y-y0)/sy)**2)/2).
     The polynomial is in the form a*x + b*y +c."""
-    x0 = float(x0) # Will force fx to be float, even if x is int.
-    y0 = float(y0) # Will force fy to be float, even if y is int
     #
-    fx = x - x0
-    # All the following operations on fx are in-place  -> no additional ndarrays created.
-    fx /= sx
-    fx **= 2
-    #
-    fy = y - y0
-    # All the following operations on fy are in-place  -> no additional ndarrays created.
-    fy /= sy
-    fy **= 2
-    #
-    f = fx + fy
-    # All the following operations on f are in-place  -> no additional ndarrays created.
-    f /= -2
-    f = numpy.exp(f)
-    f *= height  # like doing f = height*numpy.exp(-(((x-x0)/sx)**2+((y-y0)/sy)**2)/2)
+    f = height * numpy.exp(-0.5 * (((x-float(x0))/sx)**2+((y-float(y0))/sy)**2))
     #
     if enablePolynomial is True:
         # Add polynomial
         if a!=0.:
-            f += a*x
+            f += a*x  # In-place
         if b!=0:
-            f += b*y
+            f += b*y  # In-place
         if c!=0:
-            f += c
+            f += c  # In-place
     #
     return f
 
 
-def _gauss2dRot(x, y, height, x0, y0, sx, sy, theta, a=0., b=0., c=0., enablePolynomial=False):
+def gauss2dRot(x, y, height, x0, y0, sx, sy, theta_deg, a=0., b=0., c=0., enablePolynomial=False):
     """2-d rotated gaussian + 1st order polynomial, with the given parameters.
+    The gaussian is in the form height*numpy.exp(-(((x'-x0)/sx)**2+((y'-y0)/sy)**2)/2).
     The polynomial is in the form a*x + b*y +c."""
-    theta = math.radians(theta)
     #
-    fx = x*math.cos(theta) + y*math.sin(theta)  # Change reference frame -> x'
-    fx -= x0
-    fx /= sx
-    fx **= 2
+    theta = math.radians(theta_deg)  # rad -> deg
+    x1 = x*math.cos(theta) + y*math.sin(theta)  # Change reference frame -> x'
+    y1 = x*math.sin(-theta) + y*math.cos(theta)  # Change reference frame -> y'
     #
-    fy = x*math.sin(-theta) + y*math.cos(theta)  # Change reference frame -> y'
-    fy -= y0
-    fy /= sy
-    fy **= 2
-    #
-    f = height*numpy.exp(-0.5 * (fx+fy))  # like doing f = height*numpy.exp(-(((x'-x0)/sx)**2+((y'-y0)/sy)**2)/2)
-    #
-    if enablePolynomial is True:
-    # Add polynomial
-        if a!=0.:
-            f += a*x
-        if b!=0:
-            f += b*y
-        if c!=0:
-            f += c
+    f = gauss2d(x1, y1, height, x0, y0, sx, sy, a, b, c, enablePolynomial)
     #
     return f
