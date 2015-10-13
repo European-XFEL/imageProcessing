@@ -112,7 +112,10 @@ def fitGauss(image, p0=None, enablePolynomial=False):
 
         s_sq = (out[2]['fvec']**2).sum()/(len(out[2]['fvec'])-len(out[0])) # residual variance
         p1 = out[0] # parameters
-        p1cov = s_sq * out[1] # parameters covariance matrix
+        if out[1] is not None:
+            p1cov = s_sq * out[1] # parameters covariance matrix
+        else:
+             p1cov = None # singular matrix encountered
         ier = out[4] # error
 
         return p1, p1cov, ier
@@ -136,7 +139,10 @@ def fitGauss(image, p0=None, enablePolynomial=False):
 
         s_sq = (out[2]['fvec']**2).sum()/(len(out[2]['fvec'])-len(out[0])) # residual variance
         p1 = out[0] # parameters
-        p1cov = s_sq * out[1] # parameters covariance matrix
+        if out[1] is not None:
+            p1cov = s_sq * out[1] # parameters covariance matrix
+        else:
+            p1cov = None # singular matrix encountered
         ier = out[4] # error
 
         return p1, p1cov, ier
@@ -167,7 +173,10 @@ def fitGauss2DRot(image, p0=None, enablePolynomial=False):
 
     s_sq = (out[2]['fvec']**2).sum()/(len(out[2]['fvec'])-len(out[0])) # residual variance
     p1 = out[0] # parameters
-    p1cov = s_sq * out[1] # parameters covariance matrix
+    if out[1] is not None:
+        p1cov = s_sq * out[1] # parameters covariance matrix
+    else:
+        p1cov = None # singular matrix encountered
     ier = out[4] # error
 
     return p1, p1cov, ier
@@ -215,7 +224,7 @@ def gauss2dRot(x, y, height, x0, y0, sx, sy, theta_deg, a=0., b=0., c=0., enable
     The polynomial is in the form a*x + b*y +c."""
     #
     theta = math.radians(theta_deg)  # rad -> deg
-    # Reference frame change: First translate orign to (x0, y0)...
+    # Reference frame change: First translate origin to (x0, y0)...
     x1 = x - x0
     y1 = y - y0
     # ... then rotate axes
