@@ -19,22 +19,101 @@ def imagePixelValueFrequencies(image):
     return numpy.bincount(image.reshape(image.size))
 
 
-def imageSetThreshold(image, threshold):
+def imageSetThreshold(image, threshold, copy=False):
     """Sets to 0 image elements below threshold"""
     if not isinstance(image, numpy.ndarray):
         return None
 
-    # return scipy.stats.threshold(image, threshold)
+    if copy:
+        _image = image.copy()
+    else:
+        _image = image
+
+    # return scipy.stats.threshold(_image, threshold)
 
     # #  A bit faster than scipy.stats.threshold
-    # m = numpy.array(image)
-    # m[m<threshold] = 0
-    # return m
+    # _image[_image<threshold] = 0
+    # return _image
 
     # A bit faster than m[m<threshold] = 0
-    m = numpy.array(image)
-    m *= m>threshold
-    return m
+    _image *= _image>threshold
+    return _image
+
+
+def imageSubtractBackground(image, background, copy=False):
+    """Subtract background image"""
+    if not isinstance(image, numpy.ndarray):
+        return None
+
+    if not isinstance(background, numpy.ndarray):
+        return None
+
+    if background.shape!=image.shape:
+        return None
+
+    if copy:
+        _image = image.copy()
+    else:
+        _image = image
+
+    # Subtract background image
+    m = (_image>background)  # image is above bkg
+    n = (_image<=background)  # image is below bkg
+    
+    _image[m] -= background[m] # subtract bkg from image, where image is above
+    _image[n] = 0 # zero image, where it is below bkg
+
+    return _image
+
+
+def imageApplyMask(image, mask, copy=False):
+    """Apply mask to an image"""
+    if not isinstance(image, numpy.ndarray):
+        return None
+
+    if not isinstance(mask, numpy.ndarray):
+        return None
+
+    if mask.shape!=image.shape:
+        return None
+
+    if copy:
+        _image = image.copy()
+    else:
+        _image = image
+
+    # Apply mask
+    n = (mask<=0)  # Mask equal or below zero
+    _image[n] = 0 # zero img, where mask is <= 0
+
+    return _image
+
+
+def imageSelectRegion(image, x1, x2, y1, y2, copy=False):
+    """Select rectangular region from an image"""
+
+    if not isinstance(image, numpy.ndarray) or \
+            (image.ndim!=2 and image.ndim!=3):
+        return None
+
+    if copy:
+        _image = image.copy()
+    else:
+        _image = image
+
+    if _image.ndim==2:
+        _image[:y1,:] = 0
+        _image[y2:,:] = 0
+        _image[:,:x1] = 0
+        _image[:,x2:] = 0
+
+    elif _img.ndim==3:
+        _image[:y1,:,:] = 0
+        _image[y2:,:,:] = 0
+        _image[:,:x1,:] = 0
+        _image[:,x2:,:] = 0
+
+    return _image
 
 
 def imageSumAlongY(image):
