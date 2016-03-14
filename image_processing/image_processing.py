@@ -41,7 +41,8 @@ def imageSetThreshold(image, threshold, copy=False):
 
 
 def imageSubtractBackground(image, background, copy=False):
-    """Subtract background image"""
+    """Subtract background from image. Beware the image data type: It should 
+    be signed since subtraction can result in negative values!"""
     if not isinstance(image, numpy.ndarray):
         return None
 
@@ -56,12 +57,7 @@ def imageSubtractBackground(image, background, copy=False):
     else:
         _image = image
 
-    # Subtract background image
-    m = (_image>background)  # image is above bkg
-    n = (_image<=background)  # image is below bkg
-    
-    _image[m] -= background[m] # subtract bkg from image, where image is above
-    _image[n] = 0 # zero image, where it is below bkg
+    _image -= background  # subtract bkg from image
 
     return _image
 
