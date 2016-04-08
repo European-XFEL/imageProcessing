@@ -165,7 +165,7 @@ def imageCentreOfMass(image):
 
 def fitGauss(image, p0=None, enablePolynomial=False):
     """Returns gaussian fit parameters of an image (1-D or 2-D).
-    Additionally add 1st order polynomial a*x + b*x +c."""
+    Additionally add 1st order polynomial a*x + b*y +c."""
     if not isinstance(image, numpy.ndarray):
         return None
 
