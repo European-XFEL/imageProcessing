@@ -16,7 +16,7 @@ def imagePixelValueFrequencies(image):
     if not isinstance(image, numpy.ndarray):
         return None
     
-    return numpy.bincount(image.reshape(image.size))
+    return numpy.bincount(image.astype('int').reshape(image.size))
 
 
 def imageSetThreshold(image, threshold, copy=False):
