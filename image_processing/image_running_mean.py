@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import numpy
+import numpy as np
 from collections import deque
 
 
@@ -12,7 +12,7 @@ class ImageRunningMean:
     def append(self, image, maxlen=None):
         '''Append an image to the queue, update running mean'''
 
-        if not isinstance(image, numpy.ndarray):
+        if not isinstance(image, np.ndarray):
             raise ValueError("image has incorrect type: %s" % str(type(image)))
 
         if maxlen is not None and maxlen < 1:
@@ -20,7 +20,7 @@ class ImageRunningMean:
                              maxlen)
 
         _n = len(self.__imageQueue)  # current length
-        imageCopy = numpy.copy(image.astype('float64'))  # Copy the image
+        imageCopy = np.copy(image.astype('float64'))  # Copy the image
 
         if _n == 0:
             # Mean coincides with current image
@@ -64,7 +64,7 @@ class ImageRunningMean:
             # Only one image will be left
             # Mean coincides with last image left
             self.__imageQueue.popleft()
-            self.__runningMean = numpy.copy(self.__imageQueue[0])
+            self.__runningMean = np.copy(self.__imageQueue[0])
         else:
             image = self.__imageQueue.popleft()
             self.__runningMean = (_n * self.__runningMean - image) / (_n - 1)

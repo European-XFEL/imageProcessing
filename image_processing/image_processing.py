@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import math
-import numpy
+import numpy as np
 import scipy
 import scipy.optimize
 import scipy.stats
@@ -9,17 +9,17 @@ import scipy.stats
 
 def imagePixelValueFrequencies(image):
     """Returns the distribution of the pixel value frequencies"""
-    if not isinstance(image, numpy.ndarray):
-        raise ValueError("Image type is %r, must be numpy.ndarray" %
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Image type is %r, must be np.ndarray" %
                          type(image))
 
-    return numpy.bincount(image.astype('int').reshape(image.size))
+    return np.bincount(image.astype('int').reshape(image.size))
 
 
 def imageSetThreshold(image, threshold, copy=False):
     """Sets to 0 image elements below threshold"""
-    if not isinstance(image, numpy.ndarray):
-        raise ValueError("Image type is %r, must be numpy.ndarray" %
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Image type is %r, must be np.ndarray" %
                          type(image))
 
     if copy:
@@ -41,12 +41,12 @@ def imageSetThreshold(image, threshold, copy=False):
 def imageSubtractBackground(image, background, copy=False):
     """Subtract background from image. Beware the image data type: It should
     be signed since subtraction can result in negative values!"""
-    if not isinstance(image, numpy.ndarray):
-        raise ValueError("Image type is %r, must be numpy.ndarray" %
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Image type is %r, must be np.ndarray" %
                          type(image))
 
-    if not isinstance(background, numpy.ndarray):
-        raise ValueError("Background type is %r, must be numpy.ndarray" %
+    if not isinstance(background, np.ndarray):
+        raise ValueError("Background type is %r, must be np.ndarray" %
                          type(background))
 
     if background.shape != image.shape:
@@ -65,11 +65,11 @@ def imageSubtractBackground(image, background, copy=False):
 
 def imageApplyMask(image, mask, copy=False):
     """Apply mask to an image"""
-    if not isinstance(image, numpy.ndarray):
-        raise ValueError("Image type is %r, must be numpy.ndarray" %
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Image type is %r, must be np.ndarray" %
                          type(image))
-    if not isinstance(mask, numpy.ndarray):
-        raise ValueError("Mask type is %r, must be numpy.ndarray" %
+    if not isinstance(mask, np.ndarray):
+        raise ValueError("Mask type is %r, must be np.ndarray" %
                          type(mask))
     if mask.shape != image.shape:
         raise ValueError("Mask and image have different shapes: %r != %r" %
@@ -89,8 +89,8 @@ def imageApplyMask(image, mask, copy=False):
 
 def imageSelectRegion(image, x1, x2, y1, y2, copy=False):
     """Select rectangular region from an image"""
-    if not isinstance(image, numpy.ndarray):
-        raise ValueError("Image type is %r, must be numpy.ndarray" %
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Image type is %r, must be np.ndarray" %
                          type(image))
     if image.ndim != 2 and image.ndim != 3:
         raise ValueError("Image dimensions are %d, must be 2 or 3" %
@@ -118,8 +118,8 @@ def imageSelectRegion(image, x1, x2, y1, y2, copy=False):
 
 def imageSumAlongY(image):
     """Sums image along Y axis"""
-    if not isinstance(image, numpy.ndarray):
-        raise ValueError("Image type is %r, must be numpy.ndarray" %
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Image type is %r, must be np.ndarray" %
                          type(image))
     if image.ndim != 2:
         raise ValueError("Image dimensions are %d, must be 2" % image.ndim)
@@ -129,8 +129,8 @@ def imageSumAlongY(image):
 
 def imageSumAlongX(image):
     """Sums image along X axis"""
-    if not isinstance(image, numpy.ndarray):
-        raise ValueError("Image type is %r, must be numpy.ndarray" %
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Image type is %r, must be np.ndarray" %
                          type(image))
     if image.ndim != 2:
         raise ValueError("Image dimensions are %d, must be 2" % image.ndim)
@@ -140,20 +140,20 @@ def imageSumAlongX(image):
 
 def imageCentreOfMass(image):
     """Returns centre-of-mass and widths of an image (1-D or 2-D)"""
-    if not isinstance(image, numpy.ndarray):
-        raise ValueError("Image type is %r, must be numpy.ndarray" %
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Image type is %r, must be np.ndarray" %
                          type(image))
 
     if image.ndim == 1:
         # 1-D image
 
-        values = numpy.arange(image.size)
+        values = np.arange(image.size)
         weights = image
 
         # Centre-of-mass and width
-        x0 = numpy.average(values, weights=weights)
-        sx = numpy.average((values - x0) ** 2, weights=weights)
-        sx = numpy.sqrt(sx)
+        x0 = np.average(values, weights=weights)
+        sx = np.average((values - x0) ** 2, weights=weights)
+        sx = np.sqrt(sx)
 
         return (x0, sx)
 
@@ -178,8 +178,8 @@ def imageCentreOfMass(image):
 def fitGauss(image, p0=None, enablePolynomial=False):
     """Returns gaussian fit parameters of an image (1-D or 2-D).
     Additionally add 1st order polynomial a*x + b*y +c."""
-    if not isinstance(image, numpy.ndarray):
-        raise ValueError("Image type is %r, must be numpy.ndarray" %
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Image type is %r, must be np.ndarray" %
                          type(image))
 
     if image.ndim == 1:
@@ -194,7 +194,7 @@ def fitGauss(image, p0=None, enablePolynomial=False):
                 p0 = (image.max(), x0, sx, 0., 0.)
 
         # [AP] scipy.optimize.leastsq assumes equal errors
-        x = numpy.arange(image.size)
+        x = np.arange(image.size)
         errFun = lambda p: gauss1d(x, *p, enablePolynomial=enablePolynomial)\
             - image
         out = scipy.optimize.leastsq(errFun, p0, full_output=1)
@@ -222,9 +222,9 @@ def fitGauss(image, p0=None, enablePolynomial=False):
                 p0 = (image.max(), x0, y0, sx, sy, 0., 0., 0.)
 
         # [AP] scipy.optimize.leastsq assumes equal errors
-        x = numpy.arange(image.shape[1]).reshape(1, image.shape[1])
-        y = numpy.arange(image.shape[0]).reshape(image.shape[0], 1)
-        errFun = lambda p: numpy.ravel(
+        x = np.arange(image.shape[1]).reshape(1, image.shape[1])
+        y = np.arange(image.shape[0]).reshape(image.shape[0], 1)
+        errFun = lambda p: np.ravel(
             gauss2d(x, y, *p, enablePolynomial=enablePolynomial) - image
         )
         out = scipy.optimize.leastsq(errFun, p0, full_output=1)
@@ -248,8 +248,8 @@ def fitGauss(image, p0=None, enablePolynomial=False):
 def fitGauss2DRot(image, p0=None, enablePolynomial=False):
     """Returns gaussian fit parameters of a 2-D image.
     Additionally add 1st order polynomial a*x + b*x +c."""
-    if not isinstance(image, numpy.ndarray):
-        raise ValueError("Image type is %r, must be numpy.ndarray" %
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Image type is %r, must be np.ndarray" %
                          type(image))
     if image.ndim != 2:
         raise ValueError("Image dimensions are %d, must be 2" % image.ndim)
@@ -263,9 +263,9 @@ def fitGauss2DRot(image, p0=None, enablePolynomial=False):
             p0 = (image.max(), x0, y0, sx, sy, 0., 0., 0., 0.)
 
     # [AP] scipy.optimize.leastsq assumes equal errors
-    x = numpy.arange(image.shape[1]).reshape(1, image.shape[1])
-    y = numpy.arange(image.shape[0]).reshape(image.shape[0], 1)
-    errFun = lambda p: numpy.ravel(
+    x = np.arange(image.shape[1]).reshape(1, image.shape[1])
+    y = np.arange(image.shape[0]).reshape(image.shape[0], 1)
+    errFun = lambda p: np.ravel(
         gauss2dRot(x, y, *p, enablePolynomial=enablePolynomial) - image
     )
     out = scipy.optimize.leastsq(errFun, p0, full_output=1)
@@ -284,10 +284,10 @@ def fitGauss2DRot(image, p0=None, enablePolynomial=False):
 
 def gauss1d(x, height, x0, sx, a=0., b=0., enablePolynomial=False):
     """Returns a gaussian + 1st order polynomial, with the given parameters.
-    The gaussian is in the form height*numpy.exp(-(((x-x0)/sx)**2)/2).
+    The gaussian is in the form height*np.exp(-(((x-x0)/sx)**2)/2).
     The polynomial is in the form a*x + b."""
     #
-    f = height * numpy.exp(-0.5 * ((x - float(x0)) / sx) ** 2)
+    f = height * np.exp(-0.5 * ((x - float(x0)) / sx) ** 2)
     #
     if enablePolynomial is True:
         # Add polynomial
@@ -303,10 +303,10 @@ def gauss2d(x, y, height, x0, y0, sx, sy, a=0., b=0., c=0.,
             enablePolynomial=False):
     """2-d gaussian + 1st order polynomial, with the given parameters.
     The gaussian is in the form:
-        height*numpy.exp(-(((x-x0)/sx)**2+((y-y0)/sy)**2)/2).
+        height*np.exp(-(((x-x0)/sx)**2+((y-y0)/sy)**2)/2).
     The polynomial is in the form a*x + b*y +c."""
     #
-    f = height * numpy.exp(
+    f = height * np.exp(
         -0.5 * (((x - float(x0)) / sx) ** 2 + ((y - float(y0)) / sy) ** 2)
     )
     #
@@ -326,7 +326,7 @@ def gauss2dRot(x, y, height, x0, y0, sx, sy, theta_deg, a=0., b=0., c=0.,
                enablePolynomial=False):
     """2-d rotated gaussian + 1st order polynomial, with the given parameters.
     The gaussian is in the form:
-        height*numpy.exp(-(((x'-x0)/sx)**2+((y'-y0)/sy)**2)/2).
+        height*np.exp(-(((x'-x0)/sx)**2+((y'-y0)/sy)**2)/2).
     The polynomial is in the form a*x + b*y +c."""
     #
     theta = math.radians(theta_deg)  # rad -> deg
