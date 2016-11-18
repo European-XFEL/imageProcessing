@@ -12,9 +12,9 @@ import scipy.stats
 
 
 def imagePixelValueFrequencies(image):
-    """Returns the distribution of the pixel value freqiencies"""
+    """Returns the distribution of the pixel value frequencies"""
     if not isinstance(image, numpy.ndarray):
-        return None
+        raise ValueError("Image type is %r, must be numpy.ndarray" % type(image))
     
     return numpy.bincount(image.astype('int').reshape(image.size))
 
@@ -22,7 +22,7 @@ def imagePixelValueFrequencies(image):
 def imageSetThreshold(image, threshold, copy=False):
     """Sets to 0 image elements below threshold"""
     if not isinstance(image, numpy.ndarray):
-        return None
+        raise ValueError("Image type is %r, must be numpy.ndarray" % type(image))
 
     if copy:
         _image = image.copy()
@@ -44,13 +44,13 @@ def imageSubtractBackground(image, background, copy=False):
     """Subtract background from image. Beware the image data type: It should 
     be signed since subtraction can result in negative values!"""
     if not isinstance(image, numpy.ndarray):
-        return None
+        raise ValueError("Image type is %r, must be numpy.ndarray" % type(image))
 
     if not isinstance(background, numpy.ndarray):
-        return None
+        raise ValueError("Background type is %r, must be numpy.ndarray" % type(background))
 
     if background.shape!=image.shape:
-        return None
+        raise ValueError("Background and image have different shapes: %r != %r" % (background.shape, image.shape))
 
     if copy:
         _image = image.copy()
@@ -65,13 +65,13 @@ def imageSubtractBackground(image, background, copy=False):
 def imageApplyMask(image, mask, copy=False):
     """Apply mask to an image"""
     if not isinstance(image, numpy.ndarray):
-        return None
+        raise ValueError("Image type is %r, must be numpy.ndarray" % type(image))
 
     if not isinstance(mask, numpy.ndarray):
-        return None
+        raise ValueError("Mask type is %r, must be numpy.ndarray" % type(mask))
 
     if mask.shape!=image.shape:
-        return None
+        raise ValueError("Mask and image have different shapes: %r != %r" % (mask.shape, image.shape))
 
     if copy:
         _image = image.copy()
@@ -87,10 +87,10 @@ def imageApplyMask(image, mask, copy=False):
 
 def imageSelectRegion(image, x1, x2, y1, y2, copy=False):
     """Select rectangular region from an image"""
-
-    if not isinstance(image, numpy.ndarray) or \
-            (image.ndim!=2 and image.ndim!=3):
-        return None
+    if not isinstance(image, numpy.ndarray):
+        raise ValueError("Image type is %r, must be numpy.ndarray" % type(image))
+    if image.ndim!=2 and image.ndim!=3:
+        raise ValueError("Image dimensions are %d, must be 2 or 3" % image.ndim)
 
     if copy:
         _image = image.copy()
@@ -103,7 +103,7 @@ def imageSelectRegion(image, x1, x2, y1, y2, copy=False):
         _image[:,:x1] = 0
         _image[:,x2:] = 0
 
-    elif _img.ndim==3:
+    elif _image.ndim==3:
         _image[:y1,:,:] = 0
         _image[y2:,:,:] = 0
         _image[:,:x1,:] = 0
@@ -114,16 +114,20 @@ def imageSelectRegion(image, x1, x2, y1, y2, copy=False):
 
 def imageSumAlongY(image):
     """Sums image along Y axis"""
-    if not isinstance(image, numpy.ndarray) or image.ndim!=2:
-        return None
+    if not isinstance(image, numpy.ndarray):
+        raise ValueError("Image type is %r, must be numpy.ndarray" % type(image))
+    if image.ndim!=2:
+        raise ValueError("Image dimensions are %d, must be 2" % image.ndim)
     
     return image.sum(axis=0)
 
 
 def imageSumAlongX(image):
     """Sums image along X axis"""
-    if not isinstance(image, numpy.ndarray) or image.ndim!=2:
-        return None
+    if not isinstance(image, numpy.ndarray):
+        raise ValueError("Image type is %r, must be numpy.ndarray" % type(image))
+    if image.ndim!=2:
+        raise ValueError("Image dimensions are %d, must be 2" % image.ndim)
     
     return image.sum(axis=1)
 
@@ -131,7 +135,7 @@ def imageSumAlongX(image):
 def imageCentreOfMass(image):
     """Returns centre-of-mass and widths of an image (1-D or 2-D)"""
     if not isinstance(image, numpy.ndarray):
-        return None
+        raise ValueError("Image type is %r, must be numpy.ndarray" % type(image))
     
     if image.ndim==1:
         # 1-D image
@@ -160,14 +164,14 @@ def imageCentreOfMass(image):
         return (x0, y0, sx, sy)
     
     else:
-        return None
+        raise ValueError("Image dimensions are %d, must be 1 or 2" % image.ndim)
 
 
 def fitGauss(image, p0=None, enablePolynomial=False):
     """Returns gaussian fit parameters of an image (1-D or 2-D).
     Additionally add 1st order polynomial a*x + b*y +c."""
     if not isinstance(image, numpy.ndarray):
-        return None
+        raise ValueError("Image type is %r, must be numpy.ndarray" % type(image))
 
     if image.ndim==1:
         # 1-D image
@@ -223,14 +227,16 @@ def fitGauss(image, p0=None, enablePolynomial=False):
         return p1, p1cov, ier
 
     else:
-        return None
+        raise ValueError("Image dimensions are %d, must be 1 or 2" % image.ndim)
 
 
 def fitGauss2DRot(image, p0=None, enablePolynomial=False):
     """Returns gaussian fit parameters of a 2-D image.
     Additionally add 1st order polynomial a*x + b*x +c."""
-    if not isinstance(image, numpy.ndarray) or image.ndim!=2:
-        return None
+    if not isinstance(image, numpy.ndarray):
+        raise ValueError("Image type is %r, must be numpy.ndarray" % type(image))
+    if image.ndim!=2:
+        raise ValueError("Image dimensions are %d, must be 2" % image.ndim)
 
     if p0==None:
         # Evaluates initial parameters
