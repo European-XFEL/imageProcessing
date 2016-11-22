@@ -197,8 +197,8 @@ def fitGauss(image, p0=None, enablePolynomial=False):
         )
 
         fvec = out[2]['fvec']
-        s_sq = (fvec ** 2).sum() /\
-               (len(fvec) - len(out[0]))  # residual variance
+        # residual variance
+        s_sq = (fvec ** 2).sum() / (len(fvec) - len(out[0]))
         p1 = out[0]  # parameters
         if out[1] is not None:
             p1cov = s_sq * out[1]  # parameters covariance matrix
@@ -227,8 +227,8 @@ def fitGauss(image, p0=None, enablePolynomial=False):
         )
 
         fvec = out[2]['fvec']
-        s_sq = (fvec ** 2).sum() /\
-               (len(fvec) - len(out[0]))  # residual variance
+        # residual variance
+        s_sq = (fvec ** 2).sum() / (len(fvec) - len(out[0]))
         p1 = out[0]  # parameters
         if out[1] is not None:
             p1cov = s_sq * out[1]  # parameters covariance matrix
@@ -270,8 +270,8 @@ def fitGauss2DRot(image, p0=None, enablePolynomial=False):
     )
 
     fvec = out[2]['fvec']
-    s_sq = (fvec ** 2).sum() \
-        / (len(fvec) - len(out[0]))  # residual variance
+    # residual variance
+    s_sq = (fvec ** 2).sum() / (len(fvec) - len(out[0]))
     p1 = out[0]  # parameters
     if out[1] is not None:
         p1cov = s_sq * out[1]  # parameters covariance matrix

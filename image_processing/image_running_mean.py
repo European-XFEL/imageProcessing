@@ -6,9 +6,8 @@
 # Copyright (C) European XFEL GmbH Hamburg. All rights reserved.
 #############################################################################
 
-import numpy as np
-
 from collections import deque
+import numpy as np
 
 
 class ImageRunningMean:
