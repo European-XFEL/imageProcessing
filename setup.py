@@ -1,10 +1,17 @@
-from distutils.core import setup
+#!/usr/bin/env python
+
+from setuptools import setup, find_packages
 
 setup(name='image_processing',
-      version='2.1',
+      version='',
       description='Image processing utils',
       author='Andrea Parenti',
       author_email='andrea.parenti@xfel.eu',
       url='http://www.xfel.eu/',
-      packages=['image_processing'],
+      package_dir={'': 'src'},
+      packages=find_packages('src'),
+      entry_points={
+      },
+      package_data={},
+      requires=[],
       )
