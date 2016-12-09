@@ -10,8 +10,4 @@ setup(name='image_processing',
       url='http://www.xfel.eu/',
       package_dir={'': 'src'},
       packages=find_packages('src'),
-      entry_points={
-      },
-      package_data={},
-      requires=[],
       )
