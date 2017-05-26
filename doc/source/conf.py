@@ -30,7 +30,15 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.graphviz',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -112,7 +120,7 @@ pygments_style = 'sphinx'
 # keep_warnings = False
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = False
+todo_include_todos = True
 
 
 # -- Options for HTML output ----------------------------------------------
@@ -120,7 +128,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'default'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -337,3 +345,30 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #
 # texinfo_no_detailmenu = False
+
+
+# Example configuration for intersphinx: refer to the Python standard library.
+intersphinx_mapping = {'https://docs.python.org/': None}
+
+#we add a custum function to work with intersphinx
+import slumber
+import json
+
+# the RTDHOST should be set to localhost if you only compile on RTD
+# otherwise it needs to be set to the server hosting the internal RTD
+RTDHOST = 'https://in.xfel.eu/readthedocs'
+api = slumber.API(base_url='{}/api/v1/'.format(RTDHOST))
+projects = api.project.get()['objects']
+isphinx = {'python': ('http://python.readthedocs.io/en/latest/', None),
+           'numpy': ('http://numpy.readthedocs.io/en/latest/', None),
+           'scipy': ('http://scipy.readthedocs.io/en/latest/', None)}
+
+for proj in projects:
+    isphinx[proj['slug'].replace('-', '')] = \
+     ('{}/docs/{}/en/latest'.format(RTDHOST, proj['slug']), None)
+
+
+intersphinx_mapping = isphinx
+
+def setup(app):
+    app.add_config_value('includeDevInfo', 'false', 'env')
