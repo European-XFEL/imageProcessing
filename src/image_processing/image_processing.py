@@ -383,7 +383,7 @@ def fitSech2(image, p0=None, enablePolynomial=False):
 
 
 def sqsech1d(x, height, x0, sx, a=0., b=0., enablePolynomial=False):
-    """Returns a squared hyperbloic secant + 1st order polynomial, with the
+    """Returns a squared hyperbolic secant + 1st order polynomial, with the
     given parameters.
     The hyperbolic secant curve is in the form
     height / ((np.cosh((x0 - x) / sx)) ** 2)
