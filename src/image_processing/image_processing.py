@@ -341,11 +341,71 @@ def gauss2dRot(x, y, height, x0, y0, sx, sy, theta_deg, a=0., b=0., c=0.,
 
     return f
 
+
+def fitSech2(image, p0=None, enablePolynomial=False):
+    """Returns squared hyperbolic secant fit parameters of a 1-D image.
+    Additionally add 1st order polynomial a*x + b*y +c."""
+    if not isinstance(image, np.ndarray):
+        raise ValueError("Image type is %r, must be np.ndarray" %
+                         type(image))
+
+    if image.ndim == 1:  # 1-D image
+        if p0 is None:
+            # Evaluates initial parameters
+            x0, sx = imageCentreOfMass(image)
+            if enablePolynomial is False:
+                p0 = (image.max(), x0, sx)
+            else:
+                p0 = (image.max(), x0, sx, 0., 0.)
+
+        x = np.arange(image.size)
+        # [AP] scipy.optimize.leastsq assumes equal errors
+        out = scipy.optimize.leastsq(
+            lambda p: sqsech1d(x, *p, enablePolynomial=enablePolynomial) -
+            image, p0, full_output=1
+        )
+
+        fvec = out[2]['fvec']
+        # residual variance
+        s_sq = (fvec ** 2).sum() / (len(fvec) - len(out[0]))
+        p1 = out[0]  # parameters
+        if out[1] is not None:
+            p1cov = s_sq * out[1]  # parameters covariance matrix
+        else:
+            p1cov = None  # singular matrix encountered
+        ier = out[4]  # error
+
+        return p1, p1cov, ier
+
+    else:
+        raise ValueError("Image dimensions are %d, must be 1" %
+                         image.ndim)
+
+
+def sqsech1d(x, height, x0, sx, a=0., b=0., enablePolynomial=False):
+    """Returns a squared hyperbolic secant + 1st order polynomial, with the
+    given parameters.
+    The hyperbolic secant curve is in the form
+    height / ((np.cosh((x0 - x) / sx)) ** 2)
+    The polynomial is in the form a*x + b."""
+
+    f = height / ((np.cosh((x0 - x) / sx)) ** 2)
+
+    if enablePolynomial is True:
+        # Add polynomial
+        if a != 0.:
+            f += a * x  # In-place
+        if b != 0:
+            f += b  # In-place
+
+    return f
+
+
 def peakParametersEval(img):
     """
     :return max, maxPosition ,fwhm
-    these are calculated from raw data with no assumption on peak shape, but 
-    having a single maximum (apart from ripple that will affect accuracy of 
+    these are calculated from raw data with no assumption on peak shape, but
+    having a single maximum (apart from ripple that will affect accuracy of
     parameters calculations).
     """
     if not isinstance(img, np.ndarray):
@@ -368,7 +428,8 @@ def peakParametersEval(img):
         ampl = float(image.max())
         half_maximum = ampl / 2
         if 0 <= maxPos < len(image):
-            halfmaxPosHi = np.abs(image[maxPos:] - half_maximum).argmin() + maxPos
+            halfmaxPosHi = (np.abs(image[maxPos:] - half_maximum).argmin() +
+                            maxPos)
             halfmaxPosLo = np.abs(image[:maxPos] - half_maximum).argmin()
             if 0 <= halfmaxPosLo < maxPos < halfmaxPosHi < len(image):
                 fwhm = int(halfmaxPosHi - halfmaxPosLo)
