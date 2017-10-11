@@ -341,20 +341,24 @@ def gauss2dRot(x, y, height, x0, y0, sx, sy, theta_deg, a=0., b=0., c=0.,
 
     return f
 
-def peakParametersEval(image):
+def peakParametersEval(img):
     """
     :return max, maxPosition ,fwhm
-    these are calculated from raw data with no assumption on peak shape
+    these are calculated from raw data with no assumption on peak shape, but 
+    having a single maximum (apart from ripple that will affect accuracy of 
+    parameters calculations).
     """
-    if not isinstance(image, np.ndarray):
+    if not isinstance(img, np.ndarray):
         raise ValueError("Image type is %r, must be np.ndarray" %
-                         type(image))
+                         type(img))
 
     ampl = None
     maxPos = None
     fwhm = None
 
-    if image.ndim == 1:  # 1-D image
+    if img.ndim == 1:  # 1-D image
+
+        image = np.copy(img)
 
         # subtract pedestal
         pedestal = image.min()
@@ -370,6 +374,6 @@ def peakParametersEval(image):
                 fwhm = int(halfmaxPosHi - halfmaxPosLo)
     else:
         raise ValueError("Image dimensions are %d, must be 1" %
-                         image.ndim)
+                         img.ndim)
 
     return ampl, maxPos, fwhm
