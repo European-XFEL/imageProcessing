@@ -206,6 +206,9 @@ def fitGauss(image, p0=None, enablePolynomial=False):
             p1cov = None  # singular matrix encountered
         ier = out[4]  # error
 
+        # remove negative sigma values
+        p1[2] = abs(p1[2])
+
         return p1, p1cov, ier
 
     elif image.ndim == 2:  # 2-D image
@@ -235,6 +238,10 @@ def fitGauss(image, p0=None, enablePolynomial=False):
         else:
             p1cov = None  # singular matrix encountered
         ier = out[4]  # error
+
+        # remove negative sigma values
+        p1[3] = abs(p1[3])
+        p1[4] = abs(p1[4])
 
         return p1, p1cov, ier
 
@@ -278,6 +285,10 @@ def fitGauss2DRot(image, p0=None, enablePolynomial=False):
     else:
         p1cov = None  # singular matrix encountered
     ier = out[4]  # error
+
+    # remove negative sigma values
+    p1[3] = abs(p1[3])
+    p1[4] = abs(p1[4])
 
     return p1, p1cov, ier
 
@@ -374,6 +385,9 @@ def fitSech2(image, p0=None, enablePolynomial=False):
         else:
             p1cov = None  # singular matrix encountered
         ier = out[4]  # error
+
+        # remove negative sigma values
+        p1[2] = abs(p1[2])
 
         return p1, p1cov, ier
 
