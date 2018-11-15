@@ -172,6 +172,21 @@ def imageCentreOfMass(image):
         raise ValueError("Image dimensions are %d, must be 1 or 2" %
                          image.ndim)
 
+def _guess1stOrderPolynomial(image):
+
+    if image.ndim == 1:
+        # 1st order polynomial term: a*x + c
+        a = (image[-1] - image[0]) / image.shape[0]
+        c = image[0]
+        return a, c
+    elif image.ndim == 2:
+        # 1st order polynomial term: a*x + b*y + c
+        a = (image[0, -1] - image[0, 0]) / image.shape[1]
+        b = (image[-1, 0] - image[0, 0]) / image.shape[0]
+        c = image[0, 0]
+
+        return a, b, c
+
 
 def fitGauss(image, p0=None, enablePolynomial=False):
     """Returns gaussian fit parameters of an image (1-D or 2-D).
@@ -187,7 +202,8 @@ def fitGauss(image, p0=None, enablePolynomial=False):
             if enablePolynomial is False:
                 p0 = (image.max(), x0, sx)
             else:
-                p0 = (image.max(), x0, sx, 0., 0.)
+                a, c = _guess1stOrderPolynomial(image)
+                p0 = (image.max(), x0, sx, a, c)
 
         x = np.arange(image.size)
         # [AP] scipy.optimize.leastsq assumes equal errors
@@ -218,7 +234,8 @@ def fitGauss(image, p0=None, enablePolynomial=False):
             if enablePolynomial is False:
                 p0 = (image.max(), x0, y0, sx, sy)
             else:
-                p0 = (image.max(), x0, y0, sx, sy, 0., 0., 0.)
+                a, b, c = _guess1stOrderPolynomial(image)
+                p0 = (image.max(), x0, y0, sx, sy, a, b, c)
 
         x = np.arange(image.shape[1]).reshape(1, image.shape[1])
         y = np.arange(image.shape[0]).reshape(image.shape[0], 1)
@@ -265,7 +282,8 @@ def fitGauss2DRot(image, p0=None, enablePolynomial=False):
         if enablePolynomial is False:
             p0 = (image.max(), x0, y0, sx, sy, 0.)
         else:
-            p0 = (image.max(), x0, y0, sx, sy, 0., 0., 0., 0.)
+            a, b, c = _guess1stOrderPolynomial(image)
+            p0 = (image.max(), x0, y0, sx, sy, 0., a, b, c)
 
     x = np.arange(image.shape[1]).reshape(1, image.shape[1])
     y = np.arange(image.shape[0]).reshape(image.shape[0], 1)
@@ -304,7 +322,7 @@ def gauss1d(x, height, x0, sx, a=0., b=0., enablePolynomial=False):
         # Add polynomial
         if a != 0.:
             f += a * x  # In-place
-        if b != 0:
+        if b != 0.:
             f += b  # In-place
 
     return f
@@ -325,9 +343,9 @@ def gauss2d(x, y, height, x0, y0, sx, sy, a=0., b=0., c=0.,
         # Add polynomial
         if a != 0.:
             f += a * x  # In-place
-        if b != 0:
+        if b != 0.:
             f += b * y  # In-place
-        if c != 0:
+        if c != 0.:
             f += c  # In-place
 
     return f
@@ -367,7 +385,8 @@ def fitSech2(image, p0=None, enablePolynomial=False):
             if enablePolynomial is False:
                 p0 = (image.max(), x0, sx)
             else:
-                p0 = (image.max(), x0, sx, 0., 0.)
+                a, c = _guess1stOrderPolynomial(image)
+                p0 = (image.max(), x0, sx, a, c)
 
         x = np.arange(image.size)
         # [AP] scipy.optimize.leastsq assumes equal errors
