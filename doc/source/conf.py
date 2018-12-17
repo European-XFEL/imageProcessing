@@ -58,7 +58,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'ImageProcessing'
-copyright = '2016, A. Parenti'
+copyright = '2018, European XFEL GmbH'
 author = 'A. Parenti'
 
 # The version info for the project you're documenting, acts as replacement for

@@ -1,12 +1,5 @@
-nbproject/Makefile-*.mk
-nbproject/private
-nbproject/Package-*.bash
-nbproject/Makefile-*.mk
-nbproject/private
-nbproject/Package-*.bash
-*/nbproject/Makefile-*.mk
-*/nbproject/private
-*/nbproject/Package-*.bash
 dist/
 build/
+src/image_processing.egg-info/
 .dep.inc
+.idea
