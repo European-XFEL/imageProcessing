@@ -1,4 +1,4 @@
-git+https://xfel.redmine:K9Sss5CmWtQ_nbx3gyt2@git.xfel.eu/gitlab/Karabo/rtd-conf-py.git
+git+https://git.xfel.eu/gitlab/xfel-rtd/rtd-conf.git
 slumber
 traits
 breathe

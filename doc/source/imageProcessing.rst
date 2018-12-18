@@ -52,8 +52,8 @@ The following functions are available:
 
 .. function:: imageApplyMask(image, mask, copy=False)
 
-    mask is applied to the image. Mask values below 0 masks out
-    pixels.
+    mask is applied to the image. Mask and image must have the same shape.
+    Image pixels are masked out, where mask values are equal or below 0.
 
 .. function:: imageSelectRegion(image, x1, x2, y1, y2, copy=False)
 
@@ -61,37 +61,54 @@ The following functions are available:
 
 .. function:: imageSumAlongY(image)
 
-    Image is summed along the Y axis.
+    Image is integrated along the Y axis.
 
 .. function:: imageSumAlongX(image)
 
-    Image is summed along the X axis.
+    Image is integrated along the X axis.
 
 .. function:: imageCentreOfMass(image)
 
-    Return centre-of-mass and width of an image (1-D or 2-D). If the
-    image is 1-D it returns (x0, sx); if the image is 2-D it returns
+    Return centre-of-mass and standard deviation for an image (1D or 2D).
+    If the image is 1D it returns (x0, sx); if the image is 2D it returns
     (x0, y0, sx, sy). For the calculations numpy.average and
     numpy.sqrt are used.
 
 .. function:: fitGauss(image, p0=None, enablePolynomial=False)
 
-    Return the gaussian fit parameters of an image (1-D or
-    2-D). Additionally a first order polynomial a*x + b*y + c can be
+    Return the gaussian fit parameters of an image (1D or 2D).
+    An initial estimation of the parameters (p0) can be provided.
+    Additionally a first order polynomial a*x + b*y + c can be
     added to the gaussian. Returned values are (A, x0, sx, covariance,
-    error) or (A, x0, sx, a, c, covariance, error) in case of 1-D, (A,
+    error) or (A, x0, sx, a, c, covariance, error) in case of 1D, (A,
     x0, y0, sx, sy, covariance, error) or (A, x0, y0, sx, sy, a, b, c,
-    covariance, error) in case of 2-D.  The fit is done with the help
+    covariance, error) in case of 2D.  The fit is done with the help
     of the scipy.optimize.leastsq function, with full_output option.
 
 .. function:: fitGauss2DRot(image, p0=None, enablePolynomial=False)
 
-    Return the gaussian fit parameters of a 2-D image, including
-    rotation. Additionally a first order polynomial a*x + b*y + c can
+    Return the gaussian fit parameters of a 2D image, including
+    rotation.
+    An initial estimation of the parameters (p0) can be provided.
+    Additionally a first order polynomial a*x + b*y + c can
     be added to the gaussian. Returned values are (A, x0, y0, sx, sy,
     theta, covariance, error) or (A, x0, y0, sx, sy, theta, a, b, c,
     covariance, error). The fit is done with the help of the
     scipy.optimize.leastsq function, with full_output option.
+
+.. function:: fitSech2(image, p0=None, enablePolynomial=False)
+
+    Return squared `hyperbolic secant
+    <http://mathworld.wolfram.com/HyperbolicSecant.html>`_
+    fit parameters of a 1D image.
+    An initial estimation of the parameters (p0) can be provided.
+    Additionally add a 1st order polynomial a*x + b*y +c.
+
+.. function:: peakParametersEval(img)
+
+    Evaluate peak parameters (maxValue, maxPosition, FWHM) for 1D
+    distributions. Parameters are calculated from raw data with no assumption
+    on peak shape, but having a single maximum.
 
 
 The ImageRunningMean class
