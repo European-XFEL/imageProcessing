@@ -157,7 +157,8 @@ def imageCentreOfMass(image):
         x0 = np.average(values, weights=weights)
         sx = np.average((values - x0) ** 2, weights=weights)
         sx = np.sqrt(sx)
-        return x0, sx
+        # CoM is in the center of the pixel, not on the left edge!
+        return x0+0.5, sx
 
     elif image.ndim == 2:  # 2-D image
         # sum over y, evaluate centre-of-mass and width

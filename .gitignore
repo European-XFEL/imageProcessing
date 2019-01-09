@@ -1,5 +1,6 @@
 dist/
 build/
 src/image_processing.egg-info/
+__pycache__
 .dep.inc
 .idea
