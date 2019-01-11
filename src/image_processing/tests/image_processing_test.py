@@ -1,10 +1,11 @@
+import math
 import unittest
 
-import math
 import numpy as np
 
 from ..image_processing import (
-    gauss1d, imageApplyMask, imageCentreOfMass, imagePixelValueFrequencies,
+    downsize, gauss1d, imageApplyMask, imageCentreOfMass,
+    imagePixelValueFrequencies,
     imageSelectRegion, imageSetThreshold, imageSumAlongX, imageSumAlongY,
     imageSubtractBackground, peakParametersEval
 )
@@ -119,6 +120,20 @@ class ImageProcessing_TestCase(unittest.TestCase):
         self.assertTrue(imageSelectRegion(image_copy, self.X1, self.X2,
                                           self.Y1, self.Y2) is image_copy)
         self.assertTrue(imageSetThreshold(image_copy, self.X1) is image_copy)
+
+    def test_downsize(self):
+        desired_shape = (self.HEIGHT // 2, self.WIDTH // 2)
+        thumbnail = downsize(self.IMAGE, desired_shape)
+        self.assertEqual(thumbnail.shape, desired_shape)
+
+        desired_shape = (50, 100)
+        factor = max(self.HEIGHT // desired_shape[0],
+                     self.WIDTH // desired_shape[1])
+        thumbnail = downsize(self.IMAGE, desired_shape)
+        self.assertLessEqual(thumbnail.shape[0], desired_shape[0])
+        self.assertLessEqual(thumbnail.shape[1], desired_shape[1])
+        self.assertGreaterEqual(thumbnail.shape[0], self.HEIGHT // (factor + 1))
+        self.assertGreaterEqual(thumbnail.shape[1], self.WIDTH // (factor + 1))
 
 
 if __name__ == '__main__':

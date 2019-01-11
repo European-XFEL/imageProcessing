@@ -7,6 +7,7 @@
 #############################################################################
 
 import math
+
 import numpy as np
 import scipy
 import scipy.optimize
@@ -158,7 +159,7 @@ def imageCentreOfMass(image):
         sx = np.average((values - x0) ** 2, weights=weights)
         sx = np.sqrt(sx)
         # CoM is in the center of the pixel, not on the left edge!
-        return x0+0.5, sx
+        return x0 + 0.5, sx
 
     elif image.ndim == 2:  # 2-D image
         # sum over y, evaluate centre-of-mass and width
@@ -173,8 +174,8 @@ def imageCentreOfMass(image):
         raise ValueError("Image dimensions are %d, must be 1 or 2" %
                          image.ndim)
 
-def _guess1stOrderPolynomial(image):
 
+def _guess1stOrderPolynomial(image):
     if image.ndim == 1:
         # 1st order polynomial term: a*x + c
         a = (image[-1] - image[0]) / image.shape[0]
@@ -210,7 +211,7 @@ def fitGauss(image, p0=None, enablePolynomial=False):
         # [AP] scipy.optimize.leastsq assumes equal errors
         out = scipy.optimize.leastsq(
             lambda p: gauss1d(x, *p, enablePolynomial=enablePolynomial) -
-            image, p0, full_output=1
+                      image, p0, full_output=1
         )
 
         fvec = out[2]['fvec']
@@ -393,7 +394,7 @@ def fitSech2(image, p0=None, enablePolynomial=False):
         # [AP] scipy.optimize.leastsq assumes equal errors
         out = scipy.optimize.leastsq(
             lambda p: sqsech1d(x, *p, enablePolynomial=enablePolynomial) -
-            image, p0, full_output=1
+                      image, p0, full_output=1
         )
 
         fvec = out[2]['fvec']
@@ -472,3 +473,50 @@ def peakParametersEval(img):
                          img.ndim)
 
     return ampl, maxPos, fwhm
+
+
+def downsize(image, rectangle):
+    """
+    :param image: original image
+    :param rectangle: size of the rectangle where output image must fit
+    :return: image downscaled to fit in the desired rectangle, keeping the
+             x-y ratio, padded with edge values if necessary.
+             If original image already fits in the rectangle, it will be
+             returned unchanged
+    """
+    old_shape = image.shape
+
+    # if image already fits in rectangle return it unchanged
+    if (old_shape[0] <= rectangle[0] and old_shape[1] <= rectangle[1]):
+        return image
+
+    # evaluate integer scaling factor to have output image fitting in rectangle
+    # keeping the ratio
+    h_factor = old_shape[0] // rectangle[0]
+    if old_shape[0] % rectangle[0]:
+        h_factor += 1
+    w_factor = old_shape[1] // rectangle[1]
+    if old_shape[1] % rectangle[1]:
+        w_factor += 1
+    factor = max(h_factor, w_factor)
+
+    # pad original image's edges whereas needed to have exact integer division
+    h_remainder = old_shape[0] % factor
+    if h_remainder != 0:
+        h_pad = factor - h_remainder
+    else:
+        h_pad = 0
+    w_remainder = old_shape[1] % factor
+    if w_remainder != 0:
+        w_pad = factor - w_remainder
+    else:
+        w_pad = 0
+    if w_pad or h_pad:
+        image = np.pad(image, ((0, h_pad), (0, w_pad)), 'edge')
+
+    # determine output image shape
+    out_shape = (image.shape[0] // factor, image.shape[1] // factor)
+
+    # arrange data in 4d matrix for binning by averaging over fake axis
+    tmp_shape = (out_shape[0], factor, out_shape[1], factor)
+    return image.reshape(tmp_shape).mean(-1).mean(1)
