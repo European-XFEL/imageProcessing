@@ -110,6 +110,10 @@ The following functions are available:
     distributions. Parameters are calculated from raw data with no assumption
     on peak shape, but having a single maximum.
 
+.. function:: thumbnail(image, canvas, resample=False)
+
+    TODO: docs to be written 
+
 
 The ImageRunningMean class
 ==========================

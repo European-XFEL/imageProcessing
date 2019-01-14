@@ -211,7 +211,7 @@ def fitGauss(image, p0=None, enablePolynomial=False):
         # [AP] scipy.optimize.leastsq assumes equal errors
         out = scipy.optimize.leastsq(
             lambda p: gauss1d(x, *p, enablePolynomial=enablePolynomial) -
-                      image, p0, full_output=1
+            image, p0, full_output=1
         )
 
         fvec = out[2]['fvec']
@@ -394,7 +394,7 @@ def fitSech2(image, p0=None, enablePolynomial=False):
         # [AP] scipy.optimize.leastsq assumes equal errors
         out = scipy.optimize.leastsq(
             lambda p: sqsech1d(x, *p, enablePolynomial=enablePolynomial) -
-                      image, p0, full_output=1
+            image, p0, full_output=1
         )
 
         fvec = out[2]['fvec']
@@ -475,32 +475,43 @@ def peakParametersEval(img):
     return ampl, maxPos, fwhm
 
 
-def downsize(image, rectangle):
+def thumbnail(image, canvas, resample=False):
     """
     :param image: original image
-    :param rectangle: size of the rectangle where output image must fit
-    :return: image downscaled to fit in the desired rectangle, keeping the
-             x-y ratio, padded with edge values if necessary.
-             If original image already fits in the rectangle, it will be
-             returned unchanged
+    :param canvas: Tuple (height, width) specifying the size in pixel of the
+                   canvas where output image must fit
+    :param resample: when True, mean value of binned pixels is taken.
+                     when false the pixel value in the mifddle of bin area
+                      is used
+    :return: image downscaled to fit in the desired rectangle
+
+    The image is downscaled by an integer factor to fit in specified canvas,
+    keeping the original x-y ratio. If necessary, original image is padded
+    (with 0 if resample == False, with edge values if True) if this is
+    necessary to keep the ratio.
+     If the original image already fits in the rectangle, it's returned
+     unchanged.
+
+     The core of the averaged binning algorythm is taken from
+     https://scipython.com/blog/binning-a-2d-array-in-numpy/
     """
     old_shape = image.shape
 
-    # if image already fits in rectangle return it unchanged
-    if (old_shape[0] <= rectangle[0] and old_shape[1] <= rectangle[1]):
+    # if image already fits in canvas return it unchanged
+    if old_shape[0] <= canvas[0] and old_shape[1] <= canvas[1]:
         return image
 
-    # evaluate integer scaling factor to have output image fitting in rectangle
+    # evaluate integer scaling factor to have output image fitting in canvas
     # keeping the ratio
-    h_factor = old_shape[0] // rectangle[0]
-    if old_shape[0] % rectangle[0]:
+    h_factor = old_shape[0] // canvas[0]
+    if old_shape[0] % canvas[0]:
         h_factor += 1
-    w_factor = old_shape[1] // rectangle[1]
-    if old_shape[1] % rectangle[1]:
+    w_factor = old_shape[1] // canvas[1]
+    if old_shape[1] % canvas[1]:
         w_factor += 1
     factor = max(h_factor, w_factor)
 
-    # pad original image's edges whereas needed to have exact integer division
+    # pad original image's edges if needed to have exact integer division
     h_remainder = old_shape[0] % factor
     if h_remainder != 0:
         h_pad = factor - h_remainder
@@ -512,11 +523,19 @@ def downsize(image, rectangle):
     else:
         w_pad = 0
     if w_pad or h_pad:
-        image = np.pad(image, ((0, h_pad), (0, w_pad)), 'edge')
+        if resample:
+            image = np.pad(image, ((0, h_pad), (0, w_pad)), 'edge')
+        else:
+            image = np.pad(image, ((0, h_pad), (0, w_pad)),
+                           'constant', constant_values=(0, 0))
 
     # determine output image shape
     out_shape = (image.shape[0] // factor, image.shape[1] // factor)
 
     # arrange data in 4d matrix for binning by averaging over fake axis
     tmp_shape = (out_shape[0], factor, out_shape[1], factor)
-    return image.reshape(tmp_shape).mean(-1).mean(1)
+    if resample:
+        return image.reshape(tmp_shape).mean(-1).mean(1)
+    else:
+        mid_idx = (factor // 2) - 1
+        return image.reshape(tmp_shape)[:, mid_idx, :, mid_idx]
