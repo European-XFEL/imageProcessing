@@ -480,10 +480,10 @@ def thumbnail(image, canvas, resample=False):
     :param image: original image
     :param canvas: Tuple (height, width) specifying the size in pixel of the
                    canvas where output image must fit
-    :param resample: when True, mean value of binned pixels is taken.
-                     when false the pixel value in the mifddle of bin area
-                      is used
-    :return: image downscaled to fit in the desired rectangle
+    :param resample: when True, mean value of binned pixels is evaluated.
+                     when False, the pixel value in the middle of bin area
+                      is used.
+    :return: image downscaled to fit in the desired canvas
 
     The image is downscaled by an integer factor to fit in specified canvas,
     keeping the original x-y ratio. If necessary, original image is padded
