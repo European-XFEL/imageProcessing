@@ -7,6 +7,7 @@
 #############################################################################
 
 import math
+
 import numpy as np
 import scipy
 import scipy.optimize
@@ -158,7 +159,7 @@ def imageCentreOfMass(image):
         sx = np.average((values - x0) ** 2, weights=weights)
         sx = np.sqrt(sx)
         # CoM is in the center of the pixel, not on the left edge!
-        return x0+0.5, sx
+        return x0 + 0.5, sx
 
     elif image.ndim == 2:  # 2-D image
         # sum over y, evaluate centre-of-mass and width
@@ -173,8 +174,8 @@ def imageCentreOfMass(image):
         raise ValueError("Image dimensions are %d, must be 1 or 2" %
                          image.ndim)
 
-def _guess1stOrderPolynomial(image):
 
+def _guess1stOrderPolynomial(image):
     if image.ndim == 1:
         # 1st order polynomial term: a*x + c
         a = (image[-1] - image[0]) / image.shape[0]
@@ -472,3 +473,69 @@ def peakParametersEval(img):
                          img.ndim)
 
     return ampl, maxPos, fwhm
+
+
+def thumbnail(image, canvas, resample=False):
+    """
+    :param image: original image
+    :param canvas: Tuple (height, width) specifying the size in pixel of the
+                   canvas where output image must fit
+    :param resample: when True, mean value of binned pixels is evaluated.
+                     when False, the pixel value in the middle of bin area
+                      is used.
+    :return: image downscaled to fit in the desired canvas
+
+    The image is downscaled by an integer factor to fit in specified canvas,
+    keeping the original x-y ratio. If necessary, original image is padded
+    (with 0 if resample == False, with edge values if True) if this is
+    necessary to keep the ratio.
+     If the original image already fits in the rectangle, it's returned
+     unchanged.
+
+     The core of the averaged binning algorithm is taken from
+     https://scipython.com/blog/binning-a-2d-array-in-numpy/
+    """
+    old_shape = image.shape
+
+    # if image already fits in canvas return it unchanged
+    if old_shape[0] <= canvas[0] and old_shape[1] <= canvas[1]:
+        return image
+
+    # evaluate integer scaling factor to have output image fitting in canvas
+    # keeping the ratio
+    h_factor = old_shape[0] // canvas[0]
+    if old_shape[0] % canvas[0]:
+        h_factor += 1
+    w_factor = old_shape[1] // canvas[1]
+    if old_shape[1] % canvas[1]:
+        w_factor += 1
+    factor = max(h_factor, w_factor)
+
+    # pad original image's edges if needed to have exact integer division
+    h_remainder = old_shape[0] % factor
+    if h_remainder != 0:
+        h_pad = factor - h_remainder
+    else:
+        h_pad = 0
+    w_remainder = old_shape[1] % factor
+    if w_remainder != 0:
+        w_pad = factor - w_remainder
+    else:
+        w_pad = 0
+    if w_pad or h_pad:
+        if resample:
+            image = np.pad(image, ((0, h_pad), (0, w_pad)), 'edge')
+        else:
+            image = np.pad(image, ((0, h_pad), (0, w_pad)),
+                           'constant', constant_values=(0, 0))
+
+    # determine output image shape
+    out_shape = (image.shape[0] // factor, image.shape[1] // factor)
+
+    # arrange data in 4d matrix for binning by averaging over fake axis
+    tmp_shape = (out_shape[0], factor, out_shape[1], factor)
+    if resample:
+        return image.reshape(tmp_shape).mean(-1).mean(1)
+    else:
+        mid_idx = (factor // 2) - 1
+        return image.reshape(tmp_shape)[:, mid_idx, :, mid_idx]

@@ -1,10 +1,11 @@
+import math
 import unittest
 
-import math
 import numpy as np
 
 from ..image_processing import (
-    gauss1d, imageApplyMask, imageCentreOfMass, imagePixelValueFrequencies,
+    thumbnail, gauss1d, imageApplyMask, imageCentreOfMass,
+    imagePixelValueFrequencies,
     imageSelectRegion, imageSetThreshold, imageSumAlongX, imageSumAlongY,
     imageSubtractBackground, peakParametersEval
 )
@@ -119,6 +120,51 @@ class ImageProcessing_TestCase(unittest.TestCase):
         self.assertTrue(imageSelectRegion(image_copy, self.X1, self.X2,
                                           self.Y1, self.Y2) is image_copy)
         self.assertTrue(imageSetThreshold(image_copy, self.X1) is image_copy)
+
+    def test_thumbnail(self):
+        def test_helper(rectangle, expected_shape, resample):
+            thumb_img = thumbnail(self.IMAGE, rectangle, resample=resample)
+            self.assertEqual(thumb_img.shape, expected_shape)
+            return thumb_img
+
+        # test that dimensions are handled as expected
+
+        # a simple one: resized image fits exactly in canvas
+        test_helper((self.HEIGHT // 2, self.WIDTH // 2),
+                    (self.HEIGHT // 2, self.WIDTH // 2), True)
+        test_helper((self.HEIGHT // 2, self.WIDTH // 2),
+                    (self.HEIGHT // 2, self.WIDTH // 2), False)
+
+        # x fits exactly, y doesn't
+        test_helper((130, 192), (108, 192), True)
+        test_helper((130, 192), (108, 192), False)
+
+        # y fits exactly, x doesn't
+        test_helper((108, 200), (108, 192), True)
+        test_helper((108, 200), (108, 192), False)
+
+        # this triggers padding (scaling factor is 7)
+        thumb_img = test_helper((158, 300), (155, 275), False)
+
+        # check that padding worked as expected
+        self.assertTrue((thumb_img[:-1, :-1] ==
+                         self.PXVALUE * np.ones((154, 274))).all())
+        self.assertTrue((thumb_img[:, -1:] == np.zeros((155, 1))).all())
+        self.assertTrue((thumb_img[-1:, :] == np.zeros((1, 275))).all())
+
+        # test image content...
+        image = np.arange(1, 25, dtype=np.uint16).reshape(4, 6)
+
+        # ... with averaged binning (resample)
+        thumb_img = thumbnail(image, (3, 3), resample=True)
+        self.assertEqual(thumb_img.shape, (2, 3))
+        self.assertTrue(
+            (thumb_img == [[4.5, 6.5, 8.5], [16.5, 18.5, 20.5]]).all())
+
+        # ... w/o averaging (plain downsampling)
+        thumb = thumbnail(image, (3, 3))
+        self.assertEqual(thumb_img.shape, (2, 3))
+        self.assertTrue((thumb == [[1, 3, 5], [13, 15, 17]]).all())
 
 
 if __name__ == '__main__':

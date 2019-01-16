@@ -110,6 +110,16 @@ The following functions are available:
     distributions. Parameters are calculated from raw data with no assumption
     on peak shape, but having a single maximum.
 
+.. function:: thumbnail(image, canvas, resample=False)
+
+    Input image is downscaled by an integer factor to fit in specified canvas,
+    keeping the original x-y ratio. If necessary, original image is padded
+    (with 0 if resample == False, with edge values if True) if this is
+    necessary to keep the ratio.
+    If the original image already fits in the rectangle, it's returned
+    unchanged.
+
+
 
 The ImageRunningMean class
 ==========================
