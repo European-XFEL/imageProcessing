@@ -492,7 +492,7 @@ def thumbnail(image, canvas, resample=False):
      If the original image already fits in the rectangle, it's returned
      unchanged.
 
-     The core of the averaged binning algorythm is taken from
+     The core of the averaged binning algorithm is taken from
      https://scipython.com/blog/binning-a-2d-array-in-numpy/
     """
     old_shape = image.shape
