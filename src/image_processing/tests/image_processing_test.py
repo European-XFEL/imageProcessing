@@ -166,6 +166,10 @@ class ImageProcessing_TestCase(unittest.TestCase):
         self.assertEqual(thumb_img.shape, (2, 3))
         self.assertTrue((thumb == [[1, 3, 5], [13, 15, 17]]).all())
 
+        # image already fits in canvas
+        thumb = thumbnail(image, (8, 6))
+        self.assertTrue((thumb == image).all())
+
 
 if __name__ == '__main__':
     unittest.main()
