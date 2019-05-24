@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from image_processing import (
+from ..image_processing import (
     thumbnail, gauss1d, fitGauss, _guess1stOrderPolynomial, imageApplyMask,
     imageCentreOfMass, imagePixelValueFrequencies, imageSelectRegion,
     imageSetThreshold, imageSumAlongX, imageSumAlongY, imageSubtractBackground,
@@ -174,20 +174,20 @@ class ImageProcessing_TestCase(unittest.TestCase):
         x = np.arange(self.WIDTH)
         x0 = 350  # peak position
         sx = 20  # variance
-        a = 0.3
-        b = 1.0
-        res, cov, err = fitGauss(gauss1d(x, self.PXVALUE, x0, sx),
+        a = 0.1
+        b = 120.0
+        ampl = self.PXVALUE
+        res, cov, err = fitGauss(gauss1d(x, ampl, x0, sx),
                                  enablePolynomial=False)
-        expected_ampl = self.PXVALUE
-        self.assertAlmostEqual(res[0], expected_ampl, delta=10)
+
+        self.assertAlmostEqual(res[0], ampl, delta=10)
         self.assertAlmostEqual(res[1], x0)
         self.assertAlmostEqual(res[2], sx, delta=1)
 
-        curve = gauss1d(x, self.PXVALUE, x0, sx, a=a, b=b,
+        curve = gauss1d(x, ampl, x0, sx, a=a, b=b,
                            enablePolynomial=True)
         res, cov, err = fitGauss(curve, enablePolynomial=True)
-        expected_ampl = self.PXVALUE + x0 * a + b
-        self.assertAlmostEqual(res[0], expected_ampl, delta=10)
+        self.assertAlmostEqual(res[0], ampl, delta=10)
         self.assertAlmostEqual(res[1], x0 )
         self.assertAlmostEqual(res[2], sx, delta=1)
 
