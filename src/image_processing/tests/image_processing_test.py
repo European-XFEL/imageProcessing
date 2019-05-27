@@ -4,10 +4,10 @@ import unittest
 import numpy as np
 
 from ..image_processing import (
-    thumbnail, gauss1d, imageApplyMask, imageCentreOfMass,
-    imagePixelValueFrequencies,
-    imageSelectRegion, imageSetThreshold, imageSumAlongX, imageSumAlongY,
-    imageSubtractBackground, peakParametersEval
+    thumbnail, gauss1d, fitGauss, _guess1stOrderPolynomial, imageApplyMask,
+    imageCentreOfMass, imagePixelValueFrequencies, imageSelectRegion,
+    imageSetThreshold, imageSumAlongX, imageSumAlongY, imageSubtractBackground,
+    peakParametersEval
 )
 
 
@@ -169,6 +169,39 @@ class ImageProcessing_TestCase(unittest.TestCase):
         # image already fits in canvas
         thumb = thumbnail(image, (8, 6))
         self.assertTrue((thumb == image).all())
+
+    def test_fit_gauss(self):
+        x = np.arange(self.WIDTH)
+        x0 = 350  # peak position
+        sx = 20  # variance
+        a = 0.1
+        b = 120.0
+        ampl = self.PXVALUE
+        res, cov, err = fitGauss(gauss1d(x, ampl, x0, sx),
+                                 enablePolynomial=False)
+
+        self.assertAlmostEqual(res[0], ampl, delta=10)
+        self.assertAlmostEqual(res[1], x0)
+        self.assertAlmostEqual(res[2], sx, delta=1)
+
+        curve = gauss1d(x, ampl, x0, sx, a=a, b=b,
+                           enablePolynomial=True)
+        res, cov, err = fitGauss(curve, enablePolynomial=True)
+        self.assertAlmostEqual(res[0], ampl, delta=10)
+        self.assertAlmostEqual(res[1], x0 )
+        self.assertAlmostEqual(res[2], sx, delta=1)
+
+    def test_guess_polynomial(self):
+        x = np.arange(self.WIDTH)
+        x0 = 350  # peak position
+        sx = 20  # variance
+        a = 0.3
+        b = 1.0
+        curve = gauss1d(x, self.PXVALUE, x0, sx, a=a, b=b,
+                enablePolynomial=True)
+        a0, b0 = _guess1stOrderPolynomial(curve)
+        self.assertAlmostEqual(a0, a, delta=0.01)
+        self.assertAlmostEqual(b0, b, delta=0.01)
 
 
 if __name__ == '__main__':
