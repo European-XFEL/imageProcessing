@@ -460,14 +460,18 @@ def peakParametersEval(img):
         image -= pedestal
 
         maxPos = int(image.argmax().item())
+
+        if maxPos < 1 or maxPos >= len(image)-1:
+            # The max value shall not be on the borders
+            raise ValueError("No peak found in the image")
+
         ampl = float(image.max())
         half_maximum = ampl / 2
-        if 0 <= maxPos < len(image):
-            halfmaxPosHi = (np.abs(image[maxPos:] - half_maximum).argmin() +
-                            maxPos)
-            halfmaxPosLo = np.abs(image[:maxPos] - half_maximum).argmin()
-            if 0 <= halfmaxPosLo < maxPos < halfmaxPosHi < len(image):
-                fwhm = int(halfmaxPosHi - halfmaxPosLo)
+
+        halfmaxPosHi = np.abs(image[maxPos:] - half_maximum).argmin() + maxPos
+        halfmaxPosLo = np.abs(image[:maxPos] - half_maximum).argmin()
+        if 0 <= halfmaxPosLo < maxPos < halfmaxPosHi < len(image):
+            fwhm = int(halfmaxPosHi - halfmaxPosLo)
     else:
         raise ValueError("Image dimensions are %d, must be 1" %
                          img.ndim)
