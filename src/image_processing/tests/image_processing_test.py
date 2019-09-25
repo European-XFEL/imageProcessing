@@ -107,9 +107,14 @@ class ImageProcessing_TestCase(unittest.TestCase):
         sigma_to_fwhm = 2 * math.sqrt(2 * math.log(2))
         ampl, maxPos, fwhm = peakParametersEval(
             gauss1d(x, self.PXVALUE, x0, sx))
+
         self.assertAlmostEqual(ampl, self.PXVALUE)
         self.assertAlmostEqual(maxPos, x0)
         self.assertAlmostEqual(fwhm, sx * sigma_to_fwhm, delta=1)
+
+        with self.assertRaises(ValueError):
+            # Max is on last pixel
+            peakParametersEval(x)
 
     def test_inplace_algorithms(self):
         # Check that algorithms are applied in-place
