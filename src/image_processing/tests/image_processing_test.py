@@ -5,7 +5,8 @@ import numpy as np
 
 from ..image_processing import (
     thumbnail, gauss1d, fitGauss, _guess1stOrderPolynomial, imageApplyMask,
-    imageCentreOfMass, imagePixelValueFrequencies, imageSelectRegion,
+    imageCentreOfMass, imageFlipAlongX, imageFlipAlongY,
+    imagePixelValueFrequencies, imageRotateRightAngle, imageSelectRegion,
     imageSetThreshold, imageSumAlongX, imageSumAlongY, imageSubtractBackground,
     peakParametersEval
 )
@@ -207,6 +208,78 @@ class ImageProcessing_TestCase(unittest.TestCase):
         a0, b0 = _guess1stOrderPolynomial(curve)
         self.assertAlmostEqual(a0, a, delta=0.01)
         self.assertAlmostEqual(b0, b, delta=0.01)
+
+    def test_rotate(self):
+        img = np.array([[1, 2, 3, 4],
+                        [5, 6, 7, 8],
+                        [9, 10, 11, 12]], dtype=np.uint32)
+
+        rot = imageRotateRightAngle(img)
+        res = rot == np.array([[4, 8, 12],
+                               [3, 7, 11],
+                               [2, 6, 10],
+                               [1, 5, 9]],
+                              dtype=np.uint32)
+
+        self.assertTrue(res.all())
+
+        rot = imageRotateRightAngle(img, 180)
+        res = rot == np.array([[12, 11, 10, 9],
+                               [8, 7, 6, 5],
+                               [4, 3, 2, 1]], dtype=np.uint32)
+
+        self.assertTrue(res.all())
+
+        rot = imageRotateRightAngle(img, 270)
+        res = rot == np.array([[9, 5, 1],
+                               [10, 6, 2],
+                               [11, 7, 3],
+                               [12, 8, 4]],
+                              dtype=np.uint32)
+
+        self.assertTrue(res.all())
+
+        rot = imageRotateRightAngle(img, 360)
+        res = rot == img
+
+        self.assertTrue(res.all())
+
+    def test_flip(self):
+        img = np.array([[1, 2, 3, 4],
+                        [5, 6, 7, 8],
+                        [9, 10, 11, 12]], dtype=np.uint32)
+
+        # test flip along X ######
+
+        flipped = imageFlipAlongX(img)
+
+        res = flipped == np.array([[4, 3, 2, 1],
+                                   [8, 7, 6, 5],
+                                   [12, 11, 10, 9]], dtype=np.uint32)
+
+        self.assertTrue(res.all())
+
+        flipped_twice = imageFlipAlongX(flipped)
+
+        res = flipped_twice == img
+
+        self.assertTrue(res.all())
+
+        # test flip along Y ######
+
+        flipped = imageFlipAlongY(img)
+
+        res = flipped == np.array([[9, 10, 11, 12],
+                                   [5, 6, 7, 8],
+                                   [1, 2, 3, 4]], dtype=np.uint32)
+
+        self.assertTrue(res.all())
+
+        flipped_twice = imageFlipAlongY(flipped)
+
+        res = flipped_twice == img
+
+        self.assertTrue(res.all())
 
 
 if __name__ == '__main__':
