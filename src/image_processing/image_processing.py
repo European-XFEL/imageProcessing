@@ -545,7 +545,7 @@ def thumbnail(image, canvas, resample=False):
         return image.reshape(tmp_shape)[:, mid_idx, :, mid_idx]
 
 
-def imageRotateRightAngle(img, angle=90):
+def imageRotate(img, angle=90):
     """
     :param img: must be a 2d image as numpy array (exception is raised if
            it's not)
@@ -557,13 +557,12 @@ def imageRotateRightAngle(img, angle=90):
     if angle % 90 != 0:
         raise ValueError(f"Angle {angle} is not a multiple of 90 degrees.")
 
-    if img.ndim != 2:
-        raise ValueError(f"Image must be two dimensional.")
+    if not isinstance(img, np.ndarray) or img.ndim != 2:
+        raise ValueError("Input is not 2d numpy array")
 
     n_rotations = angle // 90 % 4
 
-    for i in range(n_rotations):
-        img = np.rot90(img)
+    img = np.rot90(img, n_rotations)
 
     return img
 
@@ -575,8 +574,8 @@ def imageFlipAlongX(img):
 
     :return: The image, flipped with respect to the X axis
     """
-    if img.ndim != 2:
-        raise ValueError(f"Image must be two dimensional.")
+    if not isinstance(img, np.ndarray) or img.ndim != 2:
+        raise ValueError("Input is not 2d numpy array")
 
     return np.flip(img, 1)
 
@@ -588,7 +587,7 @@ def imageFlipAlongY(img):
 
     :return: The image, flipped with respect to the Y axis
     """
-    if img.ndim != 2:
-        raise ValueError(f"Image must be two dimensional.")
+    if not isinstance(img, np.ndarray) or img.ndim != 2:
+        raise ValueError("Input is not 2d numpy array")
 
     return np.flip(img, 0)

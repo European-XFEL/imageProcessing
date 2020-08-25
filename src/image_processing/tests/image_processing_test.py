@@ -6,7 +6,7 @@ import numpy as np
 from ..image_processing import (
     thumbnail, gauss1d, fitGauss, _guess1stOrderPolynomial, imageApplyMask,
     imageCentreOfMass, imageFlipAlongX, imageFlipAlongY,
-    imagePixelValueFrequencies, imageRotateRightAngle, imageSelectRegion,
+    imagePixelValueFrequencies, imageRotate, imageSelectRegion,
     imageSetThreshold, imageSumAlongX, imageSumAlongY, imageSubtractBackground,
     peakParametersEval
 )
@@ -214,7 +214,7 @@ class ImageProcessing_TestCase(unittest.TestCase):
                         [5, 6, 7, 8],
                         [9, 10, 11, 12]], dtype=np.uint32)
 
-        rot = imageRotateRightAngle(img)
+        rot = imageRotate(img)
         res = rot == np.array([[4, 8, 12],
                                [3, 7, 11],
                                [2, 6, 10],
@@ -223,14 +223,14 @@ class ImageProcessing_TestCase(unittest.TestCase):
 
         self.assertTrue(res.all())
 
-        rot = imageRotateRightAngle(img, 180)
+        rot = imageRotate(img, 180)
         res = rot == np.array([[12, 11, 10, 9],
                                [8, 7, 6, 5],
                                [4, 3, 2, 1]], dtype=np.uint32)
 
         self.assertTrue(res.all())
 
-        rot = imageRotateRightAngle(img, 270)
+        rot = imageRotate(img, 270)
         res = rot == np.array([[9, 5, 1],
                                [10, 6, 2],
                                [11, 7, 3],
@@ -239,10 +239,13 @@ class ImageProcessing_TestCase(unittest.TestCase):
 
         self.assertTrue(res.all())
 
-        rot = imageRotateRightAngle(img, 360)
+        rot = imageRotate(img, 360)
         res = rot == img
 
         self.assertTrue(res.all())
+
+        with self.assertRaises(ValueError):
+            imageRotate(img, 123)
 
     def test_flip(self):
         img = np.array([[1, 2, 3, 4],
