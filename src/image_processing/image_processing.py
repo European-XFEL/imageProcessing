@@ -6,6 +6,8 @@
 # Copyright (C) European XFEL GmbH Hamburg. All rights reserved.
 #############################################################################
 
+import cv2
+
 import math
 
 import numpy as np
@@ -565,6 +567,24 @@ def imageRotate(img, angle=90):
     img = np.rot90(img, n_rotations)
 
     return img
+
+
+def imageArbitraryRotation(image, angle, center=None):
+    """
+    Rotate an image counterclockwise, by an arbitrary angle.
+
+    :param image: the input image as numpy.ndarray
+    :param angle: the rotation angle (degrees)
+    :param center: the rotation center (by default the image center)
+
+    :return: the rotated image
+    """
+    row, col = image.shape
+    if center is None:
+        center = tuple(np.array([row, col]) / 2)
+    rot_mat = cv2.getRotationMatrix2D(center, angle, 1.0)
+    new_image = cv2.warpAffine(image, rot_mat, (col, row))
+    return new_image
 
 
 def imageFlipAlongX(img):
