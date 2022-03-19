@@ -35,8 +35,11 @@ class ImageRunningMean:
             return
 
         if imageCopy.shape != self.shape:
-            raise ValueError("image has incorrect shape: %s != %s" %
-                             (str(imageCopy.shape), str(self.shape)))
+            # We start fresh
+            self.__imageQueue.clear()
+            self.__imageQueue.append(imageCopy)
+            self.__runningMean = imageCopy.copy()
+            return
 
         _sum = _queueLength * self.__runningMean
         if maxlen is not None and _queueLength >= maxlen:
