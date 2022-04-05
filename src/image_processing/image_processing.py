@@ -212,8 +212,8 @@ def fitGauss(image, p0=None, enablePolynomial=False):
         x = np.arange(image.size)
         # [AP] scipy.optimize.leastsq assumes equal errors
         out = scipy.optimize.leastsq(
-            lambda p: gauss1d(x, *p, enablePolynomial=enablePolynomial) -
-            image, p0, full_output=1
+            lambda p: gauss1d(x, *p, enablePolynomial=enablePolynomial)
+            - image, p0, full_output=1
         )
 
         fvec = out[2]['fvec']
@@ -395,8 +395,8 @@ def fitSech2(image, p0=None, enablePolynomial=False):
         x = np.arange(image.size)
         # [AP] scipy.optimize.leastsq assumes equal errors
         out = scipy.optimize.leastsq(
-            lambda p: sqsech1d(x, *p, enablePolynomial=enablePolynomial) -
-            image, p0, full_output=1
+            lambda p: sqsech1d(x, *p, enablePolynomial=enablePolynomial)
+            - image, p0, full_output=1
         )
 
         fvec = out[2]['fvec']
@@ -463,7 +463,7 @@ def peakParametersEval(img):
 
         maxPos = int(image.argmax().item())
 
-        if maxPos < 1 or maxPos >= len(image)-1:
+        if maxPos < 1 or maxPos >= len(image) - 1:
             # The max value shall not be on the borders
             raise ValueError("No peak found in the image")
 
