@@ -17,8 +17,8 @@ class ImageStandardMean:
                 raise ValueError("image has incorrect shape: %s != %s" %
                                  (str(image.shape), str(self.shape)))
 
-            self.__mean = (self.__mean * self.__images +
-                           image) / (self.__images + 1)
+            self.__mean = (self.__mean * self.__images
+                           + image) / (self.__images + 1)
             self.__images += 1
         else:
             self.__mean = image.astype(np.float64)
