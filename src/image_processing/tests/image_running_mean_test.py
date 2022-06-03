@@ -28,9 +28,14 @@ class ImageRunningMean_TestCase(unittest.TestCase):
         self.assertEqual(running_mean.size, 1)
         self.assertEqual(running_mean.shape, self.IMAGE.shape)
         self.assertTrue((running_mean.runningMean == self.IMAGE).all())
-        # Try to append spectrum - must throw!
-        with self.assertRaises(ValueError):
-            running_mean.append(self.SPECTRUM)
+        # Try to append spectrum - will restart fresh!
+        running_mean.append(self.SPECTRUM)
+        self.assertEqual(running_mean.shape, self.SPECTRUM.shape)
+        self.assertEqual(running_mean.size, 1)
+        # Continue with image
+        running_mean.append(self.IMAGE)
+        self.assertEqual(running_mean.size, 1)
+        self.assertEqual(running_mean.shape, self.IMAGE.shape)
         # Append three more images
         running_mean.append(0.5 * self.IMAGE)
         running_mean.append(0.5 * self.IMAGE)
@@ -55,9 +60,6 @@ class ImageRunningMean_TestCase(unittest.TestCase):
         self.assertEqual(running_mean.size, 1)
         self.assertEqual(running_mean.shape, self.SPECTRUM.shape)
         self.assertTrue((running_mean.runningMean == self.SPECTRUM).all())
-        # Try to append image - must throw!
-        with self.assertRaises(ValueError):
-            running_mean.append(self.IMAGE)
 
 
 if __name__ == '__main__':
