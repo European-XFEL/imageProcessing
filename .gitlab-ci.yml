@@ -22,7 +22,7 @@
                tag=$(echo $norm | cut -f2 -d' ')
                echo $device
                echo $tag
-               karabo -g https://$XFEL_TOKEN@git.xfel.eu/gitlab install $device $tag
+               karabo -g https://$XFEL_TOKEN@git.xfel.eu install $device $tag
            done < DEPENDS
         fi;
 
