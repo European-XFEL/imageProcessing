@@ -180,13 +180,17 @@ def imageCentreOfMass(image):
 def _guess1stOrderPolynomial(image):
     if image.ndim == 1:
         # 1st order polynomial term: a*x + c
-        a = (image[-1] - image[0]) / image.shape[0]
+        # If the image is unsigned int, pixel values must be cast to floats to
+        # avoid overflows.
+        a = (float(image[-1]) - image[0]) / image.shape[0]
         c = image[0]
         return a, c
     elif image.ndim == 2:
         # 1st order polynomial term: a*x + b*y + c
-        a = (image[0, -1] - image[0, 0]) / image.shape[1]
-        b = (image[-1, 0] - image[0, 0]) / image.shape[0]
+        # If the image is unsigned int, pixel values must be cast to floats to
+        # avoid overflows.
+        a = (float(image[0, -1]) - image[0, 0]) / image.shape[1]
+        b = (float(image[-1, 0]) - image[0, 0]) / image.shape[0]
         c = image[0, 0]
 
         return a, b, c
