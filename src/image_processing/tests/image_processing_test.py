@@ -209,6 +209,14 @@ class ImageProcessing_TestCase(unittest.TestCase):
         self.assertAlmostEqual(a0, a, delta=0.01)
         self.assertAlmostEqual(b0, b, delta=0.01)
 
+        a1, b1 = _guess1stOrderPolynomial(x)
+        self.assertAlmostEqual(a1, 1, delta=0.01)
+        self.assertAlmostEqual(b1, 0, delta=0.01)
+
+        a1, b1 = _guess1stOrderPolynomial(np.flip(x))
+        self.assertAlmostEqual(a1, -1, delta=0.01)
+        self.assertAlmostEqual(b1, self.WIDTH - 1, delta=0.01)
+
     def test_rotate(self):
         img = np.array([[1, 2, 3, 4],
                         [5, 6, 7, 8],
