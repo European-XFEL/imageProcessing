@@ -6,10 +6,9 @@
 # Copyright (C) European XFEL GmbH Hamburg. All rights reserved.
 #############################################################################
 
-import cv2
-
 import math
 
+import cv2
 import numpy as np
 import scipy
 import scipy.optimize

@@ -4,12 +4,11 @@ import unittest
 import numpy as np
 
 from ..image_processing import (
-    thumbnail, gauss1d, fitGauss, _guess1stOrderPolynomial, imageApplyMask,
+    _guess1stOrderPolynomial, fitGauss, gauss1d, imageApplyMask,
     imageCentreOfMass, imageFlipAlongX, imageFlipAlongY,
     imagePixelValueFrequencies, imageRotate, imageSelectRegion,
-    imageSetThreshold, imageSumAlongX, imageSumAlongY, imageSubtractBackground,
-    peakParametersEval
-)
+    imageSetThreshold, imageSubtractBackground, imageSumAlongX, imageSumAlongY,
+    peakParametersEval, thumbnail)
 
 
 class ImageProcessing_TestCase(unittest.TestCase):
