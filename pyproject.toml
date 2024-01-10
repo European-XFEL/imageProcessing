@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=42", "setuptools-scm[toml]>=4.1", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+root = "."
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project]
+dynamic = ["version"]
+name = "ImageProcessing"
+authors = [
+    {name = "parenti"},
+]
+description = ""
+readme = "README.md"
+dependencies = [
+    "opencv-python >= 4.9.0.80"
+]
