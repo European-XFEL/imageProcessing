@@ -1,5 +1,6 @@
+build/
 image_processing.egg-info/
 ImageProcessing.egg-info/
-__pycache__
+__pycache__/
 .dep.inc
 .idea
