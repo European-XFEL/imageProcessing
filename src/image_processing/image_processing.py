@@ -441,12 +441,16 @@ def sqsech1d(x, height, x0, sx, a=0., b=0., enablePolynomial=False):
     return f
 
 
-def peakParametersEval(img):
+def peakParametersEval(img, remove_pedestal=True):
     """
-    :return max, maxPosition ,fwhm
-    these are calculated from raw data with no assumption on peak shape, but
+    :return max, maxPosition, fwhm
+
+    These are calculated from raw data with no assumption on peak shape, but
     having a single maximum (apart from ripple that will affect accuracy of
     parameters calculations).
+
+    The image minimum will be subtracted by default before finding the peak,
+    but this removal can be disabled by setting remove_pedestal=False.
     """
     if not isinstance(img, np.ndarray):
         raise ValueError("Image type is %r, must be np.ndarray" %
@@ -460,9 +464,10 @@ def peakParametersEval(img):
 
         image = np.copy(img)
 
-        # subtract pedestal
-        pedestal = image.min()
-        image -= pedestal
+        if remove_pedestal:
+            # subtract pedestal
+            pedestal = image.min()
+            image -= pedestal
 
         maxPos = int(image.argmax().item())
 
