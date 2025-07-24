@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-
 #############################################################################
 # Author: <andrea.parenti@xfel.eu>
 # Created on December  3, 2015
-# Copyright (C) European XFEL GmbH Hamburg. All rights reserved.
+# Copyright (C) European XFEL GmbH Schenefeld. All rights reserved.
 #############################################################################
 
 from collections import deque
