@@ -348,26 +348,4 @@ texinfo_documents = [
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
-
-#we add a custum function to work with intersphinx
-import slumber
-
-# the RTDHOST should be set to localhost if you only compile on RTD
-# otherwise it needs to be set to the server hosting the internal RTD
-RTDHOST = 'https://rtd.xfel.eu'
-api = slumber.API(base_url='{}/api/v2/'.format(RTDHOST))
-projects = api.project.get()['results']
-isphinx = {'python': ('http://python.readthedocs.io/en/latest/', None),
-           'numpy': ('http://numpy.readthedocs.io/en/latest/', None),
-           'scipy': ('http://scipy.readthedocs.io/en/latest/', None)}
-
-for proj in projects:
-    isphinx[proj['slug'].replace('-', '')] = \
-     ('{}/docs/{}/en/latest'.format(RTDHOST, proj['slug']), None)
-
-
-intersphinx_mapping = isphinx
-
-def setup(app):
-    app.add_config_value('includeDevInfo', 'false', 'env')
+intersphinx_mapping = {'python': ('https://docs.python.org/3/', None)}
