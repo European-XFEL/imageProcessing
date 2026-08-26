@@ -96,11 +96,7 @@ def imageApplyMask(image, mask, copy=False):
 def imageSelectRegion(image, x1, x2, y1, y2, copy=False):
     """Select rectangular region from an image"""
     if not isinstance(image, np.ndarray):
-        raise ValueError("Image type is %r, must be np.ndarray" %
-                         type(image))
-    if image.ndim != 2 and image.ndim != 3:
-        raise ValueError("Image dimensions are %d, must be 2 or 3" %
-                         image.ndim)
+        raise ValueError(f"Image type is {type(image)}, must be np.ndarray")
 
     if copy:
         _image = image.copy()
@@ -108,16 +104,28 @@ def imageSelectRegion(image, x1, x2, y1, y2, copy=False):
         _image = image
 
     if _image.ndim == 2:
+        # GRAY image
         _image[:y1, :] = 0
         _image[y2:, :] = 0
         _image[:, :x1] = 0
         _image[:, x2:] = 0
 
-    elif _image.ndim == 3:
+    elif _image.ndim == 3 and (_image.shape[2] in (2, 3, 4)):
+        # YUV, RGB, RGBA and similar formats
         _image[:y1, :, :] = 0
         _image[y2:, :, :] = 0
         _image[:, :x1, :] = 0
         _image[:, x2:, :] = 0
+
+    elif _image.ndim == 3:
+        # Stack of GRAY images
+        _image[:, :y1, :] = 0
+        _image[:, y2:, :] = 0
+        _image[:, :, :x1] = 0
+        _image[:, :, x2:] = 0
+
+    else:
+        raise ValueError(f"Unrecognized image shape {_image.shape}")
 
     return _image
 

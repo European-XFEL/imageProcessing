@@ -23,6 +23,10 @@ class ImageProcessing_TestCase(unittest.TestCase):
         cls.Y1 = 300
         cls.Y2 = 400
         cls.IMAGE = cls.PXVALUE * np.ones(cls.SHAPE, dtype=np.uint16)
+        cls.RGB_IMAGE = cls.PXVALUE * np.ones(
+            (cls.HEIGHT, cls.WIDTH, 3), dtype=np.uint16)
+        cls.IMAGE_STACK = cls.PXVALUE * np.ones(
+            (10, cls.HEIGHT, cls.WIDTH), dtype=np.uint16)
         cls.SPECTRUM = cls.PXVALUE * np.ones((cls.WIDTH,), dtype=np.uint16)
         cls.MASK = np.ones(cls.SHAPE, dtype=np.uint16)
         cls.MASK[:cls.X1, :] = 0
@@ -70,6 +74,59 @@ class ImageProcessing_TestCase(unittest.TestCase):
         self.assertTrue((selected_img[:, self.X2:] == 0).all())  # not selected
         self.assertTrue((selected_img[:self.Y1, :] == 0).all())  # not selected
         self.assertTrue((selected_img[self.Y2:, :] == 0).all())  # not selected
+
+    def test_region_selection_rgb(self):
+        selected_img = imageSelectRegion(
+            self.RGB_IMAGE, self.X1, self.X2, self.Y1, self.Y2, True)
+        # Verify that a copy of image has been done
+        self.assertTrue(selected_img is not self.RGB_IMAGE)
+        self.assertEqual(selected_img.shape, self.RGB_IMAGE.shape)
+        self.assertEqual(selected_img.dtype, self.RGB_IMAGE.dtype)
+        # Verify the result of selection
+        self.assertTrue(
+            (selected_img[self.Y1:self.Y2, self.X1:self.X2, :] == self.PXVALUE)
+            .all())
+        self.assertTrue(
+            (selected_img[:, :self.X1, :] == 0).all())  # not selected
+        self.assertTrue(
+            (selected_img[:, self.X2:, :] == 0).all())  # not selected
+        self.assertTrue(
+            (selected_img[:self.Y1, :, :] == 0).all())  # not selected
+        self.assertTrue(
+            (selected_img[self.Y2:, :, :] == 0).all())  # not selected
+
+    def test_region_selection_stack(self):
+        selected_img = imageSelectRegion(
+            self.IMAGE_STACK, self.X1, self.X2, self.Y1, self.Y2, True)
+        # Verify that a copy of image has been done
+        self.assertTrue(selected_img is not self.IMAGE)
+        self.assertEqual(selected_img.shape, self.IMAGE_STACK.shape)
+        self.assertEqual(selected_img.dtype, self.IMAGE_STACK.dtype)
+        # Verify the result of selection
+        self.assertTrue(
+            (selected_img[:, self.Y1:self.Y2, self.X1:self.X2] == self.PXVALUE)
+            .all())
+        self.assertTrue(
+            (selected_img[:, :, :self.X1] == 0).all())  # not selected
+        self.assertTrue(
+            (selected_img[:, :, self.X2:] == 0).all())  # not selected
+        self.assertTrue(
+            (selected_img[:, :self.Y1, :] == 0).all())  # not selected
+        self.assertTrue(
+            (selected_img[:, self.Y2:, :] == 0).all())  # not selected
+
+    def test_region_selection_raise(self):
+        with self.assertRaises(ValueError):
+            # Spectrum (1d data)
+            _ = imageSelectRegion(
+                np.ones((self.WIDTH), dtype=np.uint16),
+                self.X1, self.X2, self.Y1, self.Y2, True)
+
+        with self.assertRaises(ValueError):
+            # RGB image stack (4d data)
+            _ = imageSelectRegion(
+                np.ones((10, self.HEIGHT, self.WIDTH, 3), dtype=np.uint16),
+                self.X1, self.X2, self.Y1, self.Y2, True)
 
     def test_pixel_threshold(self):
         image_copy = self.IMAGE.copy()
