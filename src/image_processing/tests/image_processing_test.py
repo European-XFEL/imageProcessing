@@ -147,6 +147,29 @@ class ImageProcessing_TestCase(unittest.TestCase):
         self.assertTrue((img_sumy == self.HEIGHT * self.PXVALUE).all())
         self.assertTrue((img_sumx == self.WIDTH * self.PXVALUE).all())
 
+    def test_sum_rgb(self):
+        img_sumy = imageSumAlongY(self.RGB_IMAGE)
+        img_sumx = imageSumAlongX(self.RGB_IMAGE)
+        self.assertTrue((img_sumy == self.HEIGHT * self.PXVALUE).all())
+        self.assertTrue((img_sumx == self.WIDTH * self.PXVALUE).all())
+
+    def test_sum_stack(self):
+        img_sumy = imageSumAlongY(self.IMAGE_STACK)
+        img_sumx = imageSumAlongX(self.IMAGE_STACK)
+        self.assertTrue((img_sumy == self.HEIGHT * self.PXVALUE).all())
+        self.assertTrue((img_sumx == self.WIDTH * self.PXVALUE).all())
+
+    def test_sum_raise(self):
+        for func in (imageSumAlongY, imageSumAlongX):
+            with self.assertRaises(ValueError):
+                # Spectrum (1d data)
+                _ = func(np.ones((self.WIDTH), dtype=np.uint16))
+
+            with self.assertRaises(ValueError):
+                # RGB image stack (4d data)
+                _ = func(np.ones(
+                    (10, self.HEIGHT, self.WIDTH, 3), dtype=np.uint16))
+
     def test_subtract_bkg(self):
         subtracted_img = imageSubtractBackground(self.IMAGE, self.BACKGROUND,
                                                  True)
