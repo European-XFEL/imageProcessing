@@ -3,14 +3,34 @@
 # Created on October 29, 2013
 # Copyright (C) European XFEL GmbH Schenefeld. All rights reserved.
 #############################################################################
-
 import math
+from enum import Enum, auto
 
 import cv2
 import numpy as np
 import scipy
 import scipy.optimize
 import scipy.stats
+
+
+class ImageType(Enum):
+    GRAY = auto()
+    COLOR = auto()
+    GRAY_STACK = auto()
+    UNKNOWN = 0
+
+
+def inferImageType(image):
+    if image.ndim == 2:
+        return ImageType.GRAY
+    elif image.ndim == 3 and (image.shape[2] in (2, 3, 4)):
+        # YUV, RGB, RGBA and similar formats
+        return ImageType.COLOR
+    elif image.ndim == 3:
+        # Stack of GRAY images
+        return ImageType.GRAY_STACK
+    else:
+        return ImageType.UNKNOWN
 
 
 def imagePixelValueFrequencies(image):
@@ -103,22 +123,22 @@ def imageSelectRegion(image, x1, x2, y1, y2, copy=False):
     else:
         _image = image
 
-    if _image.ndim == 2:
-        # GRAY image
+    image_type = inferImageType(_image)
+    if image_type == ImageType.GRAY:  # GRAY image
         _image[:y1, :] = 0
         _image[y2:, :] = 0
         _image[:, :x1] = 0
         _image[:, x2:] = 0
 
-    elif _image.ndim == 3 and (_image.shape[2] in (2, 3, 4)):
-        # YUV, RGB, RGBA and similar formats
+    elif image_type == ImageType.COLOR:  # YUV, RGB, RGBA and similar formats
+        # Color index is the 3rd one
         _image[:y1, :, :] = 0
         _image[y2:, :, :] = 0
         _image[:, :x1, :] = 0
         _image[:, x2:, :] = 0
 
-    elif _image.ndim == 3:
-        # Stack of GRAY images
+    elif image_type == ImageType.GRAY_STACK:  # Stack of GRAY images
+        # Stack index is the 1st one
         _image[:, :y1, :] = 0
         _image[:, y2:, :] = 0
         _image[:, :, :x1] = 0
@@ -133,23 +153,45 @@ def imageSelectRegion(image, x1, x2, y1, y2, copy=False):
 def imageSumAlongY(image):
     """Sums image along Y axis"""
     if not isinstance(image, np.ndarray):
-        raise ValueError("Image type is %r, must be np.ndarray" %
-                         type(image))
-    if image.ndim != 2:
-        raise ValueError("Image dimensions are %d, must be 2" % image.ndim)
+        raise ValueError(
+            f"Image type is {type(image)}, must be np.ndarray")
 
-    return image.sum(axis=0)
+    image_type = inferImageType(image)
+    if image_type == ImageType.GRAY:  # GRAY image
+        return image.sum(axis=0)
+
+    elif image_type == ImageType.COLOR:  # YUV, RGB, RGBA and similar formats
+        # Color index is the 3rd one
+        return image.sum(axis=0)
+
+    elif image_type == ImageType.GRAY_STACK:  # Stack of GRAY images
+        # Stack index is the 1st one, thus Y axis is the 2nd.
+        return image.sum(axis=1)
+
+    else:
+        raise ValueError(f"Unrecognized image shape {image.shape}")
 
 
 def imageSumAlongX(image):
     """Sums image along X axis"""
     if not isinstance(image, np.ndarray):
-        raise ValueError("Image type is %r, must be np.ndarray" %
-                         type(image))
-    if image.ndim != 2:
-        raise ValueError("Image dimensions are %d, must be 2" % image.ndim)
+        raise ValueError(
+            f"Image type is {type(image)}, must be np.ndarray")
 
-    return image.sum(axis=1)
+    image_type = inferImageType(image)
+    if image_type == ImageType.GRAY:  # GRAY image
+        return image.sum(axis=1)
+
+    elif image_type == ImageType.COLOR:  # YUV, RGB, RGBA and similar formats
+        # Color index is the 3rd one
+        return image.sum(axis=1)
+
+    elif image_type == ImageType.GRAY_STACK:  # Stack of GRAY images
+        # Stack index is the 1st one, thus X axis is the 3rd.
+        return image.sum(axis=2)
+
+    else:
+        raise ValueError(f"Unrecognized image shape {image.shape}")
 
 
 def imageCentreOfMass(image):
