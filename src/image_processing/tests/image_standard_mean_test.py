@@ -1,60 +1,47 @@
-import unittest
-
-import numpy as np
+import pytest
 
 from ..image_standard_mean import ImageStandardMean
+from .common import GRAY_IMAGE, SPECTRUM
 
 
-class ImageStandardMean_TestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.WIDTH = 1920  # image width
-        cls.HEIGHT = 1080  # image height
-        cls.PXVALUE = 1000  # image pixel values
-        cls.SHAPE = (cls.HEIGHT, cls.WIDTH)
-        cls.IMAGE = cls.PXVALUE * np.ones(cls.SHAPE, dtype=np.uint16)
-        cls.SPECTRUM = cls.PXVALUE * np.ones((cls.WIDTH,), dtype=np.uint16)
-
-    def test_constructor(self):
-        std_mean = ImageStandardMean()
-        self.assertEqual(std_mean.size, 0)
-        self.assertEqual(std_mean.shape, ())
-        self.assertIsNone(std_mean.mean)
-
-    def test_image(self):
-        std_mean = ImageStandardMean()
-        # Append one image
-        std_mean.append(self.IMAGE)
-        self.assertEqual(std_mean.size, 1)
-        self.assertEqual(std_mean.shape, self.IMAGE.shape)
-        self.assertTrue((std_mean.mean == self.IMAGE).all())
-        # Try to append spectrum - must throw!
-        with self.assertRaises(ValueError):
-            std_mean.append(self.SPECTRUM)
-        # Append three more images
-        std_mean.append(0.5 * self.IMAGE)
-        std_mean.append(0.5 * self.IMAGE)
-        std_mean.append(self.IMAGE)
-        # Average shall be 0.75*self.IMAGE
-        self.assertEqual(std_mean.size, 4)
-        self.assertTrue((std_mean.mean == 0.75 * self.IMAGE).all())
-        # Clear average
-        std_mean.clear()
-        self.assertEqual(std_mean.size, 0)
-        self.assertEqual(std_mean.shape, ())
-        self.assertIsNone(std_mean.mean)
-
-    def test_spectrum(self):
-        std_mean = ImageStandardMean()
-        # Append one image
-        std_mean.append(self.SPECTRUM)
-        self.assertEqual(std_mean.size, 1)
-        self.assertEqual(std_mean.shape, self.SPECTRUM.shape)
-        self.assertTrue((std_mean.mean == self.SPECTRUM).all())
-        # Try to append image - must throw!
-        with self.assertRaises(ValueError):
-            std_mean.append(self.IMAGE)
+def test_constructor():
+    std_mean = ImageStandardMean()
+    assert std_mean.size == 0
+    assert std_mean.shape == ()
+    assert std_mean.mean is None
 
 
-if __name__ == '__main__':
-    unittest.main()
+def test_image():
+    std_mean = ImageStandardMean()
+    # Append one image
+    std_mean.append(GRAY_IMAGE)
+    assert std_mean.size == 1
+    assert std_mean.shape == GRAY_IMAGE.shape
+    assert (std_mean.mean == GRAY_IMAGE).all()
+    # Try to append spectrum - must throw!
+    with pytest.raises(ValueError):
+        std_mean.append(SPECTRUM)
+    # Append three more images
+    std_mean.append(0.5 * GRAY_IMAGE)
+    std_mean.append(0.5 * GRAY_IMAGE)
+    std_mean.append(GRAY_IMAGE)
+    # Average shall be 0.75*IMAGE
+    assert std_mean.size == 4
+    assert (std_mean.mean == 0.75 * GRAY_IMAGE).all()
+    # Clear average
+    std_mean.clear()
+    assert std_mean.size == 0
+    assert std_mean.shape == ()
+    assert std_mean.mean is None
+
+
+def test_spectrum():
+    std_mean = ImageStandardMean()
+    # Append one image
+    std_mean.append(SPECTRUM)
+    assert std_mean.size == 1
+    assert std_mean.shape == SPECTRUM.shape
+    assert (std_mean.mean == SPECTRUM).all()
+    # Try to append image - must throw!
+    with pytest.raises(ValueError):
+        std_mean.append(GRAY_IMAGE)
