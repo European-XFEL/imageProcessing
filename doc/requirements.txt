@@ -1,2 +1,5 @@
-slumber
+mkdocs
+mkdocs-material
+mkdocs-mermaid2-plugin>=1.0.8
+pymdown-extensions
 urllib3~=1.26
