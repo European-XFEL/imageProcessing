@@ -3,3 +3,4 @@ ImageProcessing.egg-info/
 __pycache__/
 .dep.inc
 .idea
+.vscode/

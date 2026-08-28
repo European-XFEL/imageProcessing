@@ -1,0 +1,60 @@
+---
+site_name: imageProcessing
+site_description: Image Processing Utils for EuXFEL
+site_url: https://karabodevices3.pages.xfel.eu/imageProcessing/
+docs_dir: doc
+
+theme:
+  name: material
+  palette:
+    scheme: preference
+    language: en
+  features:
+    - announce.dismiss
+    - content.tabs.link
+    - navigation.indexes
+    - navigation.top
+    - navigation.tracking
+    - navigation.instant
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+    - toc.integrate
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+repo_url: https://git.xfel.eu/karabodevices3/imageProcessing/
+
+nav:
+  - index.md
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.emoji
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist
+  - tables
+
+plugins:
+  - search
+  - mermaid2:
+      arguments:
+        theme: 'dark'
+        themeVariables:
+          primaryColor: '#BB2528'
+          primaryTextColor: '#fff'
+          primaryBorderColor: '#7C0000'
+          lineColor: '#F8B229'
+          secondaryColor: '#006100'
+          tertiaryColor: '#fff'
