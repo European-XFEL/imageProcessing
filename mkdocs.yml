@@ -29,6 +29,9 @@ repo_url: https://git.xfel.eu/karabodevices3/imageProcessing/
 
 nav:
   - index.md
+  - image_standard_mean.md
+  - image_exp_running_mean.md
+  - image_running_mean.md
 
 markdown_extensions:
   - abbr

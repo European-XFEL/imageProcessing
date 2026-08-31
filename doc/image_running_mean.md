@@ -1,10 +1,15 @@
 # The `ImageRunningMean` class
 
-The `image_processing.image_running_mean` submodule provides:
+The `image_processing.image_running_mean` submodule provides the
+`ImageRunningMean` class, which can be imported by:
 
 ```python
 from image_processing.image_running_mean import ImageRunningMean
 ```
+
+`ImageRunningMean` calculates a simple moving average or a
+cumulative moving average of a NumPy array. See the [moving average
+definition](https://en.wikipedia.org/wiki/Moving_average) for details.
 
 ## Available methods
 
